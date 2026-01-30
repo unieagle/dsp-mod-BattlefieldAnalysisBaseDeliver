@@ -187,8 +187,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     
                     // 模式和过滤器
                     virtualDispenser.filter = 0;         // 不过滤（所有物品都可供应）
-                    virtualDispenser.playerMode = (EPlayerDeliveryMode)1;  // 供应模式
-                    virtualDispenser.storageMode = (EStorageDeliveryMode)0;  // None
+                    virtualDispenser.playerMode = (EPlayerDeliveryMode)1;  // 供应模式（配送器-机甲）
+                    virtualDispenser.storageMode = (EStorageDeliveryMode)1;  // 供应模式（配送器-配送器）✅
                     
                     // 无人机相关
                     virtualDispenser.workCourierCount = 0;

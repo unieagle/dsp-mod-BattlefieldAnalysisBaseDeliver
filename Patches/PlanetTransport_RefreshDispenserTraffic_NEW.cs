@@ -207,8 +207,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}]: entityId={entityId}, pcId={pcId}");
                     }
 
-                    // 📊 统计这个基站有多少物品
-                    int itemsInThisBase = 0;
+                    // 📊 统计这个基站有多少物品（按物品ID去重）
+                    var uniqueItemIds = new System.Collections.Generic.HashSet<int>();
+                    int gridsInThisBase = 0;
                     for (int i = 0; i < grids.Length; i++)
                     {
                         object? g = grids.GetValue(i);
@@ -219,7 +220,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         int cnt = countF != null ? (int)countF.GetValue(g)! : 0;
                         if (iid > 0 && cnt > 0)
                         {
-                            itemsInThisBase++;
+                            uniqueItemIds.Add(iid);
+                            gridsInThisBase++;
                             totalItemsFound++;
                             if (debugLog && verboseLog)
                             {
@@ -231,10 +233,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                     if (debugLog && verboseLog)
                     {
-                        if (itemsInThisBase == 0)
+                        if (uniqueItemIds.Count == 0)
                             Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}] 中没有物品");
                         else
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}] 共有 {itemsInThisBase} 种物品");
+                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}] 共有 {uniqueItemIds.Count} 种物品，占据 {gridsInThisBase} 个格子");
                     }
 
                     // 遍历战场分析基站的物品格子
@@ -268,11 +270,17 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             // 检查配送器是否需要这个物品
                             var filterField = dispenser.GetType().GetField("filter");
                             var playerModeField = dispenser.GetType().GetField("playerMode");
+                            var storageModeField = dispenser.GetType().GetField("storageMode");
                             int filter = filterField != null ? (int)filterField.GetValue(dispenser)! : 0;
                             int playerMode = playerModeField != null ? (int)playerModeField.GetValue(dispenser)! : 0;
+                            int storageMode = storageModeField != null ? (int)storageModeField.GetValue(dispenser)! : 0;
 
-                            // 只处理需求模式（playerMode=2表示需求）
-                            if (playerMode != 2) continue;
+                            // ✅ 检查配送器-配送器物流设置
+                            // storageMode: 0=None(关闭), 1=Supply(供应), 2=Demand(需求)
+                            // 需求方配送器必须设置为 Demand (2)
+                            if (storageMode != 2) continue;
+                            
+                            // ✅ 检查筛选器是否匹配
                             if (filter != itemId) continue; // 配送器不需要这个物品
 
                             // 找到匹配！
