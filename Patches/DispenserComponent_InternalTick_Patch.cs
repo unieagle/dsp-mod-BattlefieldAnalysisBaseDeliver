@@ -15,65 +15,147 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     public static class DispenserComponent_InternalTick_Patch
     {
         private static int _logThrottle = 0;
+        private static int _refreshCounter = 0;
+        private const int REFRESH_INTERVAL = 300; // 每300帧（约5秒）检查一次
+        private static int _dispatchCounter = 0;
+        private const int DISPATCH_INTERVAL = 60; // 每60帧（约1秒）派出一次
+        private const int MAX_BATTLE_BASE_COURIERS = 3; // 最多3个 courier 同时为基站工作
 
         [HarmonyPrefix]
-        static bool Prefix(DispenserComponent __instance, PlanetFactory factory, EntityData[] entityPool, DispenserComponent[] dispenserPool, long time, float courierSpeed, int courierCarries)
+        static void Prefix(DispenserComponent __instance, PlanetFactory factory, EntityData[] entityPool, DispenserComponent[] dispenserPool, long time, float courierSpeed, int courierCarries)
         {
             try
             {
+                // 安全检查
+                if (__instance == null || factory == null || entityPool == null)
+                    return;
+
                 _logThrottle++;
                 bool debugLog = BattlefieldBaseHelper.DebugLog() && _logThrottle <= 100;
 
-                // 处理我们的特殊 courier（到达基站取货）
-                // 通过 order.otherId 识别我们的 courier
-                bool hasSpecialCourier = false;
-                for (int i = 0; i < __instance.workCourierCount; i++)
+                // 【关键】在游戏处理之前，拦截我们的特殊 courier
+                // 防止游戏访问 grids[-(endId+1)] 导致数组越界
+                if (__instance.workCourierDatas != null && __instance.orders != null)
                 {
-                    var courier = __instance.workCourierDatas[i];
-                    var order = __instance.orders[i];
-                    
-                    // 识别我们的特殊 courier：order.otherId <= -10000 且 courier 到达终点
-                    if (order.otherId <= -10000 && courier.t >= courier.maxt && courier.itemCount == 0)
+                    for (int i = 0; i < __instance.workCourierCount; i++)
                     {
-                        // 我们的 courier 到达了基站！
-                        hasSpecialCourier = true;
-                        int specialId = -order.otherId;
-                        int battleBaseId = specialId / 10000;
-                        int gridIdx = specialId % 10000;
+                        var courier = __instance.workCourierDatas[i];
+                        var order = __instance.orders[i];
                         
-                        if (debugLog)
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🎯 courier[{i}] 到达基站，battleBaseId={battleBaseId}, gridIdx={gridIdx}");
-                        
-                        // 从基站取货
-                        int actualCount = 0;
-                        int inc = 0;
-                        if (TryPickFromBattleBase(factory, battleBaseId, gridIdx, courier.itemId, courierCarries, out actualCount, out inc, debugLog))
+                        // 诊断：输出所有特殊 courier 的状态
+                        if (order.otherId <= -10000 && debugLog && _logThrottle <= 10)
                         {
-                            // 设置返回：带着货物飞回配送器
-                            __instance.workCourierDatas[i].itemCount = actualCount;
-                            __instance.workCourierDatas[i].inc = inc;
-                            __instance.workCourierDatas[i].direction = -1f; // 返回
-                            __instance.workCourierDatas[i].t = courier.maxt; // 重置 t
-                            __instance.orders[i].otherId = 0; // 清除特殊标记
+                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊 courier[{i}]: otherId={order.otherId}, t={courier.t:F2}/{courier.maxt:F2}, dir={courier.direction:F1}, itemCount={courier.itemCount}");
+                        }
+                        
+                        // 【关键修改】：在 courier 到达前就处理，避免游戏的到达逻辑
+                        // 只要 t > maxt - 0.2（留一点余量），就认为即将到达
+                        if (order.otherId <= -10000 && courier.t >= courier.maxt - 0.2f && courier.itemCount == 0 && courier.direction > 0f)
+                        {
+                            int specialId = -order.otherId;
+                            int battleBaseId = specialId / 10000;
+                            int gridIdx = specialId % 10000;
                             
                             if (debugLog)
-                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 取货成功！数量={actualCount}，开始返回配送器");
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🎯 courier[{i}] 即将到达基站，battleBaseId={battleBaseId}, gridIdx={gridIdx}, t={courier.t:F2}/{courier.maxt:F2}");
+                            
+                            // 从基站取货
+                            int actualCount = 0;
+                            int inc = 0;
+                            if (TryPickFromBattleBase(factory, battleBaseId, gridIdx, courier.itemId, courierCarries, out actualCount, out inc, debugLog))
+                            {
+                                // 【关键】设置返回状态，让游戏跳过"到达"处理
+                                __instance.workCourierDatas[i].itemCount = actualCount;  // 设置货物
+                                __instance.workCourierDatas[i].inc = inc;
+                                __instance.workCourierDatas[i].direction = -1f;          // 返回模式
+                                __instance.workCourierDatas[i].t = courier.maxt;         // t = maxt，开始返回
+                                __instance.workCourierDatas[i].endId = 0;                // 清除 endId，游戏不会处理
+                                __instance.orders[i].otherId = 0;                        // 清除特殊标记
+                                
+                                if (debugLog)
+                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 取货成功！数量={actualCount}，开始返回配送器");
+                            }
+                            else
+                            {
+                                // 如果取货失败（没货了），直接让 courier 返回
+                                __instance.workCourierDatas[i].direction = -1f;
+                                __instance.workCourierDatas[i].t = courier.maxt;
+                                __instance.workCourierDatas[i].endId = 0;
+                                __instance.orders[i].otherId = 0;
+                                
+                                if (debugLog)
+                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 基站无货，courier[{i}] 空载返回");
+                            }
                         }
                     }
                 }
 
-                // 派出新的空载无人机（只在没有特殊 courier 时）
-                if (!hasSpecialCourier && __instance.idleCourierCount > 0 && __instance.pairs != null && __instance.playerPairCount > 0)
+                // 定期刷新配对（确保物品放回基站后能重新配对）
+                // 只在第一个 dispenser 中刷新，避免重复调用
+                if (__instance.id == 1)
                 {
-                    DispatchEmptyCouriersToBattleBase(__instance, factory, entityPool, courierCarries, debugLog);
+                    _refreshCounter++;
+                    if (_refreshCounter >= REFRESH_INTERVAL)
+                    {
+                        _refreshCounter = 0;
+                        if (factory.transport != null)
+                        {
+                            try
+                            {
+                                // 调用 RefreshDispenserTraffic 重新检查配对
+                                factory.transport.RefreshDispenserTraffic(__instance.id);
+                                
+                                if (debugLog)
+                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔄 定期刷新配对，dispenserId={__instance.id}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] 刷新配对失败: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+
+                // 派出新的空载无人机（限制频率和数量）
+                // 1. 只在第一个 dispenser 中处理
+                // 2. 保留至少一半的 courier 给游戏正常逻辑
+                // 3. 限制派出频率
+                if (__instance.id == 1)
+                {
+                    _dispatchCounter++;
+                    
+                    // 每 DISPATCH_INTERVAL 帧检查一次
+                    if (_dispatchCounter >= DISPATCH_INTERVAL)
+                    {
+                        _dispatchCounter = 0;
+                        
+                        // 统计当前有多少 courier 在为基站工作
+                        int battleBaseCourierCount = 0;
+                        if (__instance.orders != null)
+                        {
+                            for (int i = 0; i < __instance.workCourierCount; i++)
+                            {
+                                if (__instance.orders[i].otherId <= -10000)
+                                    battleBaseCourierCount++;
+                            }
+                        }
+                        
+                        // 只在有空闲 courier 且未达到上限时派出
+                        int totalCouriers = __instance.idleCourierCount + __instance.workCourierCount;
+                        if (__instance.idleCourierCount > totalCouriers / 2 && 
+                            battleBaseCourierCount < MAX_BATTLE_BASE_COURIERS &&
+                            __instance.pairs != null && __instance.playerPairCount > 0)
+                        {
+                            // 只派出1个 courier
+                            DispatchOneCourierToBattleBase(__instance, factory, entityPool, courierCarries, debugLog);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] InternalTick Prefix 异常: {ex.Message}\n{ex.StackTrace}");
             }
-            
-            return true; // 继续执行原方法
         }
 
         /// <summary>
@@ -166,13 +248,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
-        /// 派出空载无人机去战场分析基站
+        /// 派出一个空载无人机去战场分析基站
         /// </summary>
-        private static void DispatchEmptyCouriersToBattleBase(DispenserComponent dispenser, PlanetFactory factory, EntityData[] entityPool, int courierCarries, bool debugLog)
+        private static void DispatchOneCourierToBattleBase(DispenserComponent dispenser, PlanetFactory factory, EntityData[] entityPool, int courierCarries, bool debugLog)
         {
             try
             {
-                // 遍历所有战场分析基站配对
+                // 遍历所有战场分析基站配对，只派出一个
                 for (int i = 0; i < dispenser.playerPairCount; i++)
                 {
                     if (dispenser.idleCourierCount <= 0) break;
@@ -183,18 +265,6 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         int specialId = -dispenser.pairs[i].supplyId;
                         int battleBaseId = specialId / 10000;
                         int gridIdx = specialId % 10000;
-
-                        // 检查是否已经有 courier 在处理这个 pair（通过 order.otherId 识别）
-                        bool alreadyWorking = false;
-                        for (int j = 0; j < dispenser.workCourierCount; j++)
-                        {
-                            if (dispenser.orders[j].otherId == dispenser.pairs[i].supplyId)
-                            {
-                                alreadyWorking = true;
-                                break;
-                            }
-                        }
-                        if (alreadyWorking) continue;
 
                         // 检查基站是否有货
                         if (!CheckBattleBaseHasItem(factory, battleBaseId, gridIdx, dispenser.filter, debugLog))
@@ -207,12 +277,15 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         {
                             Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 派出空载courier！剩余空闲={dispenser.idleCourierCount}");
                         }
+                        
+                        // 只派出一个就返回
+                        if (success) break;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DispatchEmptyCouriersToBattleBase 异常: {ex.Message}");
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DispatchOneCourierToBattleBase 异常: {ex.Message}");
             }
         }
 
