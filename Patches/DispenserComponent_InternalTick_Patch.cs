@@ -66,6 +66,26 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊 courier[{i}] 飞向虚拟配送器: endId={courier.endId}, t={courier.t:F2}/{courier.maxt:F2}, dir={courier.direction:F1}, itemCount={courier.itemCount}");
                             }
                             
+                            // ✅ 新增：持续检查基站是否存在（飞行中检测）
+                            // 如果基站被拆除，让空载无人机立即掉头返回（不等到到达目标位置）
+                            if (courier.itemCount == 0 && courier.direction > 0f)
+                            {
+                                // 获取对应的战场分析基站ID
+                                if (VirtualDispenserManager.TryGetBattleBaseId(courier.endId, out int flightBattleBaseId))
+                                {
+                                    // 检查基站是否存在
+                                    if (!VirtualDispenserManager.CheckBattleBaseExists(factory, flightBattleBaseId))
+                                    {
+                                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 战场基站[{flightBattleBaseId}]已被拆除，courier[{i}] 立即掉头返回");
+                                        
+                                        // 立即掉头返回（不管当前飞到哪里了）
+                                        __instance.workCourierDatas[i].direction = -1f;
+                                        __instance.workCourierDatas[i].t = courier.t;  // 保持当前位置，开始从当前位置返回
+                                        continue;  // 跳过后续处理
+                                    }
+                                }
+                            }
+                            
                             // 在无人机到达虚拟配送器前拦截（从对应的战场分析基站取货）
                             if (courier.t >= courier.maxt - 0.2f && courier.itemCount == 0 && courier.direction > 0f)
                             {

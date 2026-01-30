@@ -148,6 +148,21 @@ namespace BattlefieldAnalysisBaseDeliver
                 Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelWindow.TakeObjectEntryFromPool 应用补丁（跳过虚拟配送器）。");
             }
 
+            // Patch 11: PlanetTransport.RemoveDispenserComponent - 拆除配送器时退还飞行中物品
+            var removeDispenserMethod = AccessTools.Method(typeof(PlanetTransport), "RemoveDispenserComponent");
+            if (removeDispenserMethod != null)
+            {
+                harmony.Patch(
+                    original: removeDispenserMethod,
+                    prefix: new HarmonyMethod(typeof(Patches.PlanetTransport_RemoveDispenserComponent_Patch), "Prefix")
+                );
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 PlanetTransport.RemoveDispenserComponent 应用补丁（退还飞行中物品）。");
+            }
+            else
+            {
+                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 PlanetTransport.RemoveDispenserComponent 方法！");
+            }
+
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 加载完成！使用虚拟配送器方案。");
         }
     }
