@@ -74,6 +74,21 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                                 {
                                     if (debugLog)
                                         Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 无法找到虚拟配送器 {courier.endId} 对应的战场分析基站");
+                                    
+                                    // 无法找到映射，让无人机空载返回
+                                    __instance.workCourierDatas[i].direction = -1f;
+                                    __instance.workCourierDatas[i].t = courier.maxt;
+                                    continue;
+                                }
+                                
+                                // ✅ 关键检查：基站是否仍然存在（可能在无人机飞行途中被拆除）
+                                if (!VirtualDispenserManager.CheckBattleBaseExists(factory, battleBaseId))
+                                {
+                                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 战场基站[{battleBaseId}]已被拆除，courier[{i}] 空载返回");
+                                    
+                                    // 基站已被拆除，让无人机立即空载返回
+                                    __instance.workCourierDatas[i].direction = -1f;
+                                    __instance.workCourierDatas[i].t = courier.maxt;
                                     continue;
                                 }
                                 
