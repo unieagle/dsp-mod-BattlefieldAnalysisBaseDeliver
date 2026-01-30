@@ -19,7 +19,6 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         private const int REFRESH_INTERVAL = 300; // 每300帧（约5秒）检查一次
         private static int _dispatchCounter = 0;
         private const int DISPATCH_INTERVAL = 60; // 每60帧（约1秒）派出一次
-        private const int MAX_BATTLE_BASE_COURIERS = 3; // 最多3个 courier 同时为基站工作
 
         [HarmonyPrefix]
         static void Prefix(DispenserComponent __instance, PlanetFactory factory, EntityData[] entityPool, DispenserComponent[] dispenserPool, long time, float courierSpeed, int courierCarries)
@@ -129,21 +128,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     {
                         _dispatchCounter = 0;
                         
-                        // 统计当前有多少 courier 在为基站工作
-                        int battleBaseCourierCount = 0;
-                        if (__instance.orders != null)
-                        {
-                            for (int i = 0; i < __instance.workCourierCount; i++)
-                            {
-                                if (__instance.orders[i].otherId <= -10000)
-                                    battleBaseCourierCount++;
-                            }
-                        }
-                        
-                        // 只在有空闲 courier 且未达到上限时派出
-                        int totalCouriers = __instance.idleCourierCount + __instance.workCourierCount;
-                        if (__instance.idleCourierCount > totalCouriers / 2 && 
-                            battleBaseCourierCount < MAX_BATTLE_BASE_COURIERS &&
+                        // 只在有空闲 courier 时派出
+                        if (__instance.idleCourierCount > 0 && 
                             __instance.pairs != null && __instance.playerPairCount > 0)
                         {
                             // 只派出1个 courier
