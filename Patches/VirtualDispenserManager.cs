@@ -201,6 +201,29 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     virtualDispenser.holdupItemCount = 0;
                     virtualDispenser.holdupPackage = new DispenserStore[0];  // 空数组
                     
+                    // 配送包裹（关键！UI 会访问这个字段）
+                    // 需要创建一个空的 DeliveryPackage
+                    try
+                    {
+                        var deliveryPackageType = typeof(DispenserComponent).Assembly.GetType("DeliveryPackage");
+                        if (deliveryPackageType != null)
+                        {
+                            var deliveryPackageConstructor = deliveryPackageType.GetConstructor(new Type[] { typeof(int) });
+                            if (deliveryPackageConstructor != null)
+                            {
+                                // 创建容量为 0 的空 DeliveryPackage
+                                object? emptyDeliveryPackage = deliveryPackageConstructor.Invoke(new object[] { 0 });
+                                virtualDispenser.deliveryPackage = (DeliveryPackage)emptyDeliveryPackage!;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 初始化 deliveryPackage 失败: {ex.Message}");
+                        // 如果失败，设置为 null（可能会导致 UI 错误，但不会崩溃）
+                        virtualDispenser.deliveryPackage = null!;
+                    }
+                    
                     // 订单和配对
                     virtualDispenser.playerOrdered = 0;
                     virtualDispenser.storageOrdered = 0;
