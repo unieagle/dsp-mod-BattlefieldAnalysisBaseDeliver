@@ -246,7 +246,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         int itemId = itemIdField != null ? (int)itemIdField.GetValue(grid)! : 0;
                         int count = countField != null ? (int)countField.GetValue(grid)! : 0;
 
-                        if (itemId <= 0 || count <= 0) continue;
+                        // ✅ 改进：只要格子有物品ID（即使count=0），就建立配对
+                        // 这样即使暂时没货，配对也会保持，有货就立即派遣
+                        if (itemId <= 0) continue;
 
                         // 📊 这个格子有物品
                         bool foundMatch = false;
@@ -280,6 +282,16 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             {
                                 if (debugLog && verboseLog)
                                     Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 战场分析基站 {battleBaseId} 没有对应的虚拟配送器");
+                                continue;
+                            }
+
+                            // ✅ 检查基站是否仍然存在（防止基站拆除后仍建立配对）
+                            if (!VirtualDispenserManager.CheckBattleBaseExists(__instance.factory, battleBaseId))
+                            {
+                                if (debugLog)
+                                {
+                                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 战场基站[{battleBaseId}]不存在，跳过虚拟配送器[{virtualDispenserId}]");
+                                }
                                 continue;
                             }
 

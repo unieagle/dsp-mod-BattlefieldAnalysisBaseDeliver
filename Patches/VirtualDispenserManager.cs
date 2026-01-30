@@ -202,6 +202,60 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
+        /// 检查战场分析基站是否存在（entityId > 0）
+        /// </summary>
+        public static bool CheckBattleBaseExists(PlanetFactory factory, int battleBaseId)
+        {
+            try
+            {
+                var defenseSystem = factory?.defenseSystem;
+                if (defenseSystem == null) return false;
+
+                var battleBasesField = defenseSystem.GetType().GetField("battleBases",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (battleBasesField == null) return false;
+
+                object? battleBasesPool = battleBasesField.GetValue(defenseSystem);
+                if (battleBasesPool == null) return false;
+
+                var bufferField = battleBasesPool.GetType().GetField("buffer",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (bufferField == null) return false;
+
+                Array? battleBases = bufferField.GetValue(battleBasesPool) as Array;
+                if (battleBases == null || battleBaseId <= 0 || battleBaseId >= battleBases.Length)
+                    return false;
+
+                object? battleBase = battleBases.GetValue(battleBaseId);
+                if (battleBase == null) return false;
+
+                var entityIdField = battleBase.GetType().GetField("entityId");
+                if (entityIdField == null) return false;
+
+                int entityId = (int)entityIdField.GetValue(battleBase)!;
+                return entityId > 0;  // entityId > 0 说明基站存在
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CheckBattleBaseExists 异常: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 检查虚拟配送器是否有效（对应的基站是否存在）
+        /// </summary>
+        public static bool IsVirtualDispenserValid(PlanetFactory factory, int virtualDispenserId)
+        {
+            // 1. 检查是否是虚拟配送器
+            if (!TryGetBattleBaseId(virtualDispenserId, out int battleBaseId))
+                return false;
+
+            // 2. 检查基站是否存在
+            return CheckBattleBaseExists(factory, battleBaseId);
+        }
+
+        /// <summary>
         /// 清理映射（星球切换时）
         /// </summary>
         public static void Clear()

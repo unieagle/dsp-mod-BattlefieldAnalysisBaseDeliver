@@ -9,18 +9,48 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     [HarmonyPatch(typeof(DispenserComponent), "OnRematchPairs")]
     public static class DispenserComponent_OnRematchPairs_Patch
     {
+        private static int _callCount = 0;
+        
         [HarmonyPrefix]
-        static bool Prefix(DispenserComponent __instance)
+        static bool Prefix(DispenserComponent __instance, PlanetFactory factory)
         {
-            // 检查是否是虚拟配送器
-            if (VirtualDispenserManager.IsVirtualDispenser(__instance.id))
+            _callCount++;
+            
+            try
             {
-                // 虚拟配送器不需要处理 OnRematchPairs
-                // 因为它没有 deliveryPackage（玩家背包）
-                return false;  // 跳过原方法
-            }
+                // 【诊断】前20次调用输出详细日志
+                if (_callCount <= 20)
+                {
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] OnRematchPairs 调用 #{_callCount}: dispenser.id={__instance.id}, isVirtual={VirtualDispenserManager.IsVirtualDispenser(__instance.id)}");
+                }
+                
+                // 检查是否是虚拟配送器
+                if (VirtualDispenserManager.IsVirtualDispenser(__instance.id))
+                {
+                    if (_callCount <= 20)
+                    {
+                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 跳过虚拟配送器[{__instance.id}]的 OnRematchPairs");
+                    }
+                    
+                    // 虚拟配送器不需要处理 OnRematchPairs
+                    // 因为它没有 deliveryPackage（玩家背包）
+                    return false;  // 跳过原方法
+                }
+                
+                // ✅ 额外的安全检查：如果 deliveryPackage 是 null，也跳过
+                if (__instance.deliveryPackage == null)
+                {
+                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 配送器[{__instance.id}]的 deliveryPackage 为 null，跳过 OnRematchPairs");
+                    return false;
+                }
 
-            return true;  // 继续执行原方法
+                return true;  // 继续执行原方法
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] OnRematchPairs Prefix 异常: {ex.Message}\n{ex.StackTrace}");
+                return true;  // 出错时继续执行原方法（避免完全破坏游戏）
+            }
         }
     }
 }

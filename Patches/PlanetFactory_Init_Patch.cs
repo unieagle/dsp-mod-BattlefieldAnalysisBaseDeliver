@@ -61,10 +61,12 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 if (__instance?.transport == null)
                     return;
 
-                // 清理旧映射
-                VirtualDispenserManager.Clear();
+                // ⚠️ 不要调用 Clear()！
+                // RefreshDispenserTraffic 会在之前被调用，已经创建了虚拟配送器
+                // 如果这里 Clear()，会导致重复创建
+                // CreateVirtualDispensers 内部有幂等性检查，不会重复创建
 
-                // 重新创建虚拟配送器
+                // 创建虚拟配送器（如果还没创建）
                 VirtualDispenserManager.CreateVirtualDispensers(__instance);
 
                 if (BattlefieldBaseHelper.DebugLog())

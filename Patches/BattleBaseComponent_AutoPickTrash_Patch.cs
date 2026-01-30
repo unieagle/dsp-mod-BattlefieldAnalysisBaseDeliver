@@ -58,8 +58,20 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     }
                 }
 
-                // 如果物品种类发生变化（新增了物品类型），触发刷新
+                // 如果物品种类发生变化（增加或从0变为非0），触发刷新
+                bool shouldRefresh = false;
                 if (itemTypeCount > _lastItemCount)
+                {
+                    // 物品种类增加
+                    shouldRefresh = true;
+                }
+                else if (_lastItemCount == 0 && itemTypeCount > 0)
+                {
+                    // 从没有物品变为有物品（即使种类数相同）
+                    shouldRefresh = true;
+                }
+                
+                if (shouldRefresh)
                 {
                     _lastItemCount = itemTypeCount;
 

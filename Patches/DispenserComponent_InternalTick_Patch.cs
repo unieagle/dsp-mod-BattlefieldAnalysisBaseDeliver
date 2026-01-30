@@ -162,10 +162,15 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             // 【诊断】输出每个配对（前20次检查）
                             if (_checkCounters[dispenserId] <= 20)
                             {
-                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}]   检查 pair[{i}]: supplyId={pair.supplyId}, isVirtual={VirtualDispenserManager.IsVirtualDispenser(pair.supplyId)}");
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}]   检查 pair[{i}]: supplyId={pair.supplyId}, demandId={pair.demandId}, isVirtual={VirtualDispenserManager.IsVirtualDispenser(pair.supplyId)}");
                             }
                             
-                            if (pair.supplyId > 0 && VirtualDispenserManager.IsVirtualDispenser(pair.supplyId))
+                            // ✅ 关键检查：
+                            // 1. supplyId 是虚拟配送器（供应方）
+                            // 2. demandId 是当前配送器（需求方）- 这才是正确的配送器-配送器规则！
+                            if (pair.supplyId > 0 && 
+                                VirtualDispenserManager.IsVirtualDispenser(pair.supplyId) &&
+                                pair.demandId == __instance.id)  // ← 检查配对方向，而不是 playerMode
                             {
                                 hasVirtualDispenserPair = true;
                                 virtualPairIndex = i;
@@ -322,6 +327,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         if (!VirtualDispenserManager.TryGetBattleBaseId(virtualDispenserId, out int battleBaseId))
                         {
                             Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 无法找到虚拟配送器 {virtualDispenserId} 对应的战场分析基站");
+                            continue;
+                        }
+
+                        // ✅ 检查基站是否仍然存在（防止基站拆除后仍派遣）
+                        if (!VirtualDispenserManager.CheckBattleBaseExists(factory, battleBaseId))
+                        {
+                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 战场基站[{battleBaseId}]不存在，取消派遣");
                             continue;
                         }
 
