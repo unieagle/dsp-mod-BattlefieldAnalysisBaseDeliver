@@ -1,5 +1,6 @@
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -15,9 +16,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     public static class DispenserComponent_InternalTick_Patch
     {
         private static int _logThrottle = 0;
-        private static int _refreshCounter = 0;
+        private static int _globalRefreshCounter = 0; // 全局刷新计数器
         private const int REFRESH_INTERVAL = 300; // 每300帧（约5秒）检查一次
-        private static int _dispatchCounter = 0;
+        private static Dictionary<int, int> _dispenserCounters = new Dictionary<int, int>(); // 每个配送器独立的计数器
         private const int DISPATCH_INTERVAL = 60; // 每60帧（约1秒）派出一次
 
         [HarmonyPrefix]
@@ -90,22 +91,47 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 }
 
                 // 定期刷新配对（确保物品放回基站后能重新配对）
-                // 只在第一个 dispenser 中刷新，避免重复调用
+                // 使用全局计数器，只在第一个 dispenser 中刷新所有配送器，避免重复调用
                 if (__instance.id == 1)
                 {
-                    _refreshCounter++;
-                    if (_refreshCounter >= REFRESH_INTERVAL)
+                    _globalRefreshCounter++;
+                    if (_globalRefreshCounter >= REFRESH_INTERVAL)
                     {
-                        _refreshCounter = 0;
+                        _globalRefreshCounter = 0;
                         if (factory.transport != null)
                         {
                             try
                             {
-                                // 调用 RefreshDispenserTraffic 重新检查配对
-                                factory.transport.RefreshDispenserTraffic(__instance.id);
+                                // 遍历所有配送器，刷新配对
+                                var dispenserPoolField = factory.transport.GetType().GetField("dispenserPool", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                var dispenserCursorField = factory.transport.GetType().GetField("dispenserCursor", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                                 
-                                if (debugLog)
-                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔄 定期刷新配对，dispenserId={__instance.id}");
+                                if (dispenserPoolField != null && dispenserCursorField != null)
+                                {
+                                    object? dispenserPoolObj = dispenserPoolField.GetValue(factory.transport);
+                                    object? dispenserCursorObj = dispenserCursorField.GetValue(factory.transport);
+                                    
+                                    if (dispenserPoolObj is Array allDispensers && dispenserCursorObj != null)
+                                    {
+                                        int dispenserCursor = Convert.ToInt32(dispenserCursorObj);
+                                        
+                                        // 刷新所有配送器
+                                        for (int i = 1; i < dispenserCursor && i < allDispensers.Length; i++)
+                                        {
+                                            object? disp = allDispensers.GetValue(i);
+                                            if (disp == null) continue;
+                                            
+                                            var idField = disp.GetType().GetField("id");
+                                            int dispId = idField != null ? (int)idField.GetValue(disp)! : 0;
+                                            if (dispId != i) continue;
+                                            
+                                            factory.transport.RefreshDispenserTraffic(i);
+                                        }
+                                        
+                                        if (debugLog)
+                                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔄 定期刷新所有配送器的配对");
+                                    }
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -115,22 +141,37 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     }
                 }
 
-                // 派出新的空载无人机（限制频率和数量）
-                // 1. 只在第一个 dispenser 中处理
-                // 2. 保留至少一半的 courier 给游戏正常逻辑
-                // 3. 限制派出频率
-                if (__instance.id == 1)
+                // 派出新的空载无人机（限制频率）
+                // 每个 dispenser 独立维护计数器
+                int dispenserId = __instance.id;
+                if (!_dispenserCounters.ContainsKey(dispenserId))
                 {
-                    _dispatchCounter++;
+                    _dispenserCounters[dispenserId] = 0;
+                }
+                
+                _dispenserCounters[dispenserId]++;
+                
+                // 每 DISPATCH_INTERVAL 帧检查一次
+                if (_dispenserCounters[dispenserId] >= DISPATCH_INTERVAL)
+                {
+                    _dispenserCounters[dispenserId] = 0;
                     
-                    // 每 DISPATCH_INTERVAL 帧检查一次
-                    if (_dispatchCounter >= DISPATCH_INTERVAL)
+                    // 只在有空闲 courier 时派出
+                    if (__instance.idleCourierCount > 0 && __instance.pairs != null)
                     {
-                        _dispatchCounter = 0;
+                        // 检查是否有战场分析基站的配对（supplyId <= -10000）
+                        bool hasBattleBasePair = false;
+                        for (int i = 0; i < __instance.pairs.Length; i++)
+                        {
+                            var pair = __instance.pairs[i];
+                            if (pair.supplyId <= -10000)
+                            {
+                                hasBattleBasePair = true;
+                                break;
+                            }
+                        }
                         
-                        // 只在有空闲 courier 时派出
-                        if (__instance.idleCourierCount > 0 && 
-                            __instance.pairs != null && __instance.playerPairCount > 0)
+                        if (hasBattleBasePair)
                         {
                             // 只派出1个 courier
                             DispatchOneCourierToBattleBase(__instance, factory, entityPool, courierCarries, debugLog);
