@@ -524,6 +524,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// <summary>
         /// 检查战场基站是否有指定物品
         /// </summary>
+        /// <summary>
+        /// 检查战场基站是否有指定物品（检查所有格子，而不是只检查特定gridIdx）
+        /// </summary>
         private static bool CheckBattleBaseHasItem(PlanetFactory factory, int battleBaseId, int gridIdx, int filterItemId, bool debugLog)
         {
             try
@@ -565,17 +568,27 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 object? gridsObj = gridsField?.GetValue(storage);
                 if (gridsObj is not Array grids) return false;
 
-                if (gridIdx < 0 || gridIdx >= grids.Length) return false;
+                // ✅ 修复：检查所有格子，而不是只检查特定的gridIdx
+                // 因为同一个物品可能分布在多个格子里
+                for (int i = 0; i < grids.Length; i++)
+                {
+                    object? grid = grids.GetValue(i);
+                    if (grid == null) continue;
 
-                object? grid = grids.GetValue(gridIdx);
-                if (grid == null) return false;
+                    var itemIdField = grid.GetType().GetField("itemId");
+                    var countField = grid.GetType().GetField("count");
+                    int itemId = itemIdField != null ? (int)itemIdField.GetValue(grid)! : 0;
+                    int count = countField != null ? (int)countField.GetValue(grid)! : 0;
 
-                var itemIdField = grid.GetType().GetField("itemId");
-                var countField = grid.GetType().GetField("count");
-                int itemId = itemIdField != null ? (int)itemIdField.GetValue(grid)! : 0;
-                int count = countField != null ? (int)countField.GetValue(grid)! : 0;
+                    // 找到任何一个格子有这个物品就返回 true
+                    if (itemId == filterItemId && count > 0)
+                    {
+                        return true;
+                    }
+                }
 
-                return itemId == filterItemId && count > 0;
+                // 所有格子都没有这个物品
+                return false;
             }
             catch
             {
