@@ -16,9 +16,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     public static class DispenserComponent_InternalTick_Patch
     {
         private static int _logThrottle = 0;
-        private static int _globalRefreshCounter = 0; // 全局刷新计数器
-        private const int REFRESH_INTERVAL = 300; // 每300帧（约5秒）检查一次
-        private static Dictionary<int, int> _dispenserCounters = new Dictionary<int, int>(); // 每个配送器独立的计数器
+        private static Dictionary<int, int> _dispenserCounters = new Dictionary<int, int>(); // 每个配送器独立的计数器（派遣频率）
+        private static Dictionary<int, int> _checkCounters = new Dictionary<int, int>(); // 每个配送器的检查次数（用于诊断日志）
         private const int DISPATCH_INTERVAL = 60; // 每60帧（约1秒）派出一次
 
         [HarmonyPrefix]
@@ -32,6 +31,21 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 _logThrottle++;
                 bool debugLog = BattlefieldBaseHelper.DebugLog() && _logThrottle <= 100;
+                
+                // 【诊断】每300帧（5秒）输出配送器状态
+                if (_logThrottle % 300 == 0 && __instance.pairCount > 0)
+                {
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔍 配送器[{__instance.id}] 状态: idle={__instance.idleCourierCount}, work={__instance.workCourierCount}, pairCount={__instance.pairCount} (playerPairCount={__instance.playerPairCount})");
+                    
+                    // 输出所有配对（最多5个）
+                    int maxPairs = Math.Min(__instance.pairCount, Math.Min(__instance.pairs.Length, 5));
+                    for (int i = 0; i < maxPairs; i++)
+                    {
+                        var pair = __instance.pairs[i];
+                        bool isVirtual = VirtualDispenserManager.IsVirtualDispenser(pair.supplyId);
+                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}]   pair[{i}]: supplyId={pair.supplyId} (虚拟={isVirtual}), demandId={pair.demandId}");
+                    }
+                }
 
                 // 【关键】在游戏处理之前，拦截我们的特殊 courier
                 // 防止游戏访问 grids[-(endId+1)] 导致数组越界
@@ -42,106 +56,65 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         var courier = __instance.workCourierDatas[i];
                         var order = __instance.orders[i];
                         
-                        // 诊断：输出所有特殊 courier 的状态
-                        if (order.otherId <= -10000 && debugLog && _logThrottle <= 10)
+                        // 【新方案】识别飞向虚拟配送器的无人机
+                        // 检查 endId 是否是虚拟配送器
+                        if (courier.endId > 0 && VirtualDispenserManager.IsVirtualDispenser(courier.endId))
                         {
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊 courier[{i}]: otherId={order.otherId}, t={courier.t:F2}/{courier.maxt:F2}, dir={courier.direction:F1}, itemCount={courier.itemCount}");
-                        }
-                        
-                        // 【关键修改】：在 courier 到达前就处理，避免游戏的到达逻辑
-                        // 只要 t > maxt - 0.2（留一点余量），就认为即将到达
-                        if (order.otherId <= -10000 && courier.t >= courier.maxt - 0.2f && courier.itemCount == 0 && courier.direction > 0f)
-                        {
-                            int specialId = -order.otherId;
-                            int battleBaseId = specialId / 10000;
-                            int gridIdx = specialId % 10000;
-                            
-                            if (debugLog)
-                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🎯 courier[{i}] 即将到达基站，battleBaseId={battleBaseId}, gridIdx={gridIdx}, t={courier.t:F2}/{courier.maxt:F2}");
-                            
-                            // 从基站取货
-                            int actualCount = 0;
-                            int inc = 0;
-                            if (TryPickFromBattleBase(factory, battleBaseId, gridIdx, courier.itemId, courierCarries, out actualCount, out inc, debugLog))
+                            // 诊断：输出状态
+                            if (debugLog && _logThrottle <= 10)
                             {
-                                // 【关键】设置返回状态，让游戏跳过"到达"处理
-                                __instance.workCourierDatas[i].itemCount = actualCount;  // 设置货物
-                                __instance.workCourierDatas[i].inc = inc;
-                                __instance.workCourierDatas[i].direction = -1f;          // 返回模式
-                                __instance.workCourierDatas[i].t = courier.maxt;         // t = maxt，开始返回
-                                __instance.workCourierDatas[i].endId = 0;                // 清除 endId，游戏不会处理
-                                __instance.orders[i].otherId = 0;                        // 清除特殊标记
-                                
-                                if (debugLog)
-                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 取货成功！数量={actualCount}，开始返回配送器");
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊 courier[{i}] 飞向虚拟配送器: endId={courier.endId}, t={courier.t:F2}/{courier.maxt:F2}, dir={courier.direction:F1}, itemCount={courier.itemCount}");
                             }
-                            else
+                            
+                            // 在无人机到达虚拟配送器前拦截（从对应的战场分析基站取货）
+                            if (courier.t >= courier.maxt - 0.2f && courier.itemCount == 0 && courier.direction > 0f)
                             {
-                                // 如果取货失败（没货了），直接让 courier 返回
-                                __instance.workCourierDatas[i].direction = -1f;
-                                __instance.workCourierDatas[i].t = courier.maxt;
-                                __instance.workCourierDatas[i].endId = 0;
-                                __instance.orders[i].otherId = 0;
-                                
-                                if (debugLog)
-                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 基站无货，courier[{i}] 空载返回");
-                            }
-                        }
-                    }
-                }
-
-                // 定期刷新配对（确保物品放回基站后能重新配对）
-                // 使用全局计数器，只在第一个 dispenser 中刷新所有配送器，避免重复调用
-                if (__instance.id == 1)
-                {
-                    _globalRefreshCounter++;
-                    if (_globalRefreshCounter >= REFRESH_INTERVAL)
-                    {
-                        _globalRefreshCounter = 0;
-                        if (factory.transport != null)
-                        {
-                            try
-                            {
-                                // 遍历所有配送器，刷新配对
-                                var dispenserPoolField = factory.transport.GetType().GetField("dispenserPool", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                                var dispenserCursorField = factory.transport.GetType().GetField("dispenserCursor", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                                
-                                if (dispenserPoolField != null && dispenserCursorField != null)
+                                // 获取对应的战场分析基站ID
+                                if (!VirtualDispenserManager.TryGetBattleBaseId(courier.endId, out int battleBaseId))
                                 {
-                                    object? dispenserPoolObj = dispenserPoolField.GetValue(factory.transport);
-                                    object? dispenserCursorObj = dispenserCursorField.GetValue(factory.transport);
-                                    
-                                    if (dispenserPoolObj is Array allDispensers && dispenserCursorObj != null)
-                                    {
-                                        int dispenserCursor = Convert.ToInt32(dispenserCursorObj);
-                                        
-                                        // 刷新所有配送器
-                                        for (int i = 1; i < dispenserCursor && i < allDispensers.Length; i++)
-                                        {
-                                            object? disp = allDispensers.GetValue(i);
-                                            if (disp == null) continue;
-                                            
-                                            var idField = disp.GetType().GetField("id");
-                                            int dispId = idField != null ? (int)idField.GetValue(disp)! : 0;
-                                            if (dispId != i) continue;
-                                            
-                                            factory.transport.RefreshDispenserTraffic(i);
-                                        }
-                                        
-                                        if (debugLog)
-                                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔄 定期刷新所有配送器的配对");
-                                    }
+                                    if (debugLog)
+                                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 无法找到虚拟配送器 {courier.endId} 对应的战场分析基站");
+                                    continue;
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] 刷新配对失败: {ex.Message}");
+                                
+                                // 从订单中获取 gridIdx
+                                var supplyIndexField = order.GetType().GetField("supplyIndex");
+                                int gridIdx = supplyIndexField != null ? (int)supplyIndexField.GetValue(order)! : 0;
+                                
+                                if (debugLog)
+                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🎯 courier[{i}] 即将到达虚拟配送器[{courier.endId}]，对应战场基站[{battleBaseId}] gridIdx={gridIdx}, t={courier.t:F2}/{courier.maxt:F2}");
+                                
+                                // 从基站取货
+                                int actualCount = 0;
+                                int inc = 0;
+                                if (TryPickFromBattleBase(factory, battleBaseId, gridIdx, courier.itemId, courierCarries, out actualCount, out inc, debugLog))
+                                {
+                                    // 设置返回状态
+                                    __instance.workCourierDatas[i].itemCount = actualCount;  // 设置货物
+                                    __instance.workCourierDatas[i].inc = inc;
+                                    __instance.workCourierDatas[i].direction = -1f;          // 返回模式
+                                    __instance.workCourierDatas[i].t = courier.maxt;         // t = maxt，开始返回
+                                    
+                                    if (debugLog)
+                                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 从战场基站[{battleBaseId}]取货成功！数量={actualCount}，开始返回配送器");
+                                }
+                                else
+                                {
+                                    // 如果取货失败（没货了），空载返回
+                                    __instance.workCourierDatas[i].direction = -1f;
+                                    __instance.workCourierDatas[i].t = courier.maxt;
+                                    
+                                    if (debugLog)
+                                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 战场基站[{battleBaseId}]无货，courier[{i}] 空载返回");
+                                }
                             }
                         }
                     }
                 }
 
                 // 派出新的空载无人机（限制频率）
+                // 注意：不再主动调用 RefreshDispenserTraffic，依赖游戏原生调用
+                // 游戏会在配送器 filter 改变、物品变化等情况下自动调用
                 // 每个 dispenser 独立维护计数器
                 int dispenserId = __instance.id;
                 if (!_dispenserCounters.ContainsKey(dispenserId))
@@ -156,26 +129,76 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 {
                     _dispenserCounters[dispenserId] = 0;
                     
-                    // 只在有空闲 courier 时派出
-                    if (__instance.idleCourierCount > 0 && __instance.pairs != null)
+                    // 增加检查次数
+                    if (!_checkCounters.ContainsKey(dispenserId))
                     {
-                        // 检查是否有战场分析基站的配对（supplyId <= -10000）
-                        bool hasBattleBasePair = false;
-                        for (int i = 0; i < __instance.pairs.Length; i++)
+                        _checkCounters[dispenserId] = 0;
+                    }
+                    _checkCounters[dispenserId]++;
+                    
+                    // 【诊断】记录派遣检查状态（前20次或有配对时）
+                    // ⚠️ 注意：我们的虚拟配送器配对使用正数ID，不计入 playerPairCount，而是在 pairCount 中
+                    if (__instance.pairCount > 0)
+                    {
+                        // 每次检查都记录（前20次）
+                        if (_checkCounters[dispenserId] <= 20)
+                        {
+                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔍 派遣检查 #{_checkCounters[dispenserId]}: dispenser[{__instance.id}] idle={__instance.idleCourierCount}, work={__instance.workCourierCount}, pairCount={__instance.pairCount} (playerPairCount={__instance.playerPairCount})");
+                        }
+                    }
+                    
+                    // 只在有空闲 courier 时派出
+                    // ⚠️ 检查 pairCount 而不是 playerPairCount，因为虚拟配送器配对使用正数ID
+                    if (__instance.idleCourierCount > 0 && __instance.pairs != null && __instance.pairCount > 0)
+                    {
+                        // 【新方案】检查是否有虚拟配送器的配对
+                        bool hasVirtualDispenserPair = false;
+                        int virtualPairIndex = -1;
+                        // ✅ 遍历 pairCount 而不是 playerPairCount
+                        for (int i = 0; i < __instance.pairCount && i < __instance.pairs.Length; i++)
                         {
                             var pair = __instance.pairs[i];
-                            if (pair.supplyId <= -10000)
+                            
+                            // 【诊断】输出每个配对（前20次检查）
+                            if (_checkCounters[dispenserId] <= 20)
                             {
-                                hasBattleBasePair = true;
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}]   检查 pair[{i}]: supplyId={pair.supplyId}, isVirtual={VirtualDispenserManager.IsVirtualDispenser(pair.supplyId)}");
+                            }
+                            
+                            if (pair.supplyId > 0 && VirtualDispenserManager.IsVirtualDispenser(pair.supplyId))
+                            {
+                                hasVirtualDispenserPair = true;
+                                virtualPairIndex = i;
+                                
+                                // 【诊断】找到虚拟配送器配对（前20次检查或每5秒）
+                                if (_checkCounters[dispenserId] <= 20 || _checkCounters[dispenserId] % 5 == 0)
+                                {
+                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 发现虚拟配送器配对! dispenser[{__instance.id}] pair[{i}]: supplyId={pair.supplyId}");
+                                }
                                 break;
                             }
                         }
                         
-                        if (hasBattleBasePair)
+                        if (hasVirtualDispenserPair)
                         {
+                            // 【关键诊断】输出派遣信息（前20次检查或每5秒）
+                            if (_checkCounters[dispenserId] <= 20 || _checkCounters[dispenserId] % 5 == 0)
+                            {
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 准备派出无人机! dispenser[{__instance.id}] virtualPair[{virtualPairIndex}] idleCouriers={__instance.idleCourierCount}");
+                            }
+                            
                             // 只派出1个 courier
                             DispatchOneCourierToBattleBase(__instance, factory, entityPool, courierCarries, debugLog);
                         }
+                        else if (_checkCounters[dispenserId] <= 20)
+                        {
+                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 没有找到虚拟配送器配对（检查了{__instance.pairCount}个配对）");
+                        }
+                    }
+                    else if (__instance.pairCount > 0 && _checkCounters[dispenserId] <= 20)
+                    {
+                        // 【诊断】为什么不派遣？
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 不满足派遣条件: idle={__instance.idleCourierCount}, pairs={__instance.pairs != null}, pairCount={__instance.pairCount}");
                     }
                 }
             }
@@ -281,28 +304,48 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         {
             try
             {
-                // 遍历所有战场分析基站配对，只派出一个
-                for (int i = 0; i < dispenser.playerPairCount; i++)
+                // 【新方案】遍历所有配对，找到虚拟配送器的配对，只派出一个
+                // ⚠️ 必须使用 pairCount 而不是 playerPairCount，因为虚拟配送器使用正数ID
+                for (int i = 0; i < dispenser.pairCount && i < dispenser.pairs.Length; i++)
                 {
                     if (dispenser.idleCourierCount <= 0) break;
 
-                    // 我们的特殊ID格式：-(battleBaseId * 10000 + gridIdx)
-                    if (dispenser.pairs[i].supplyId <= -10000)
+                    var pair = dispenser.pairs[i];
+                    
+                    // 检查 supplyId 是否是虚拟配送器
+                    if (pair.supplyId > 0 && VirtualDispenserManager.IsVirtualDispenser(pair.supplyId))
                     {
-                        int specialId = -dispenser.pairs[i].supplyId;
-                        int battleBaseId = specialId / 10000;
-                        int gridIdx = specialId % 10000;
+                        int virtualDispenserId = pair.supplyId;
+                        int gridIdx = pair.supplyIndex;
+                        
+                        // 获取对应的战场分析基站ID
+                        if (!VirtualDispenserManager.TryGetBattleBaseId(virtualDispenserId, out int battleBaseId))
+                        {
+                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 无法找到虚拟配送器 {virtualDispenserId} 对应的战场分析基站");
+                            continue;
+                        }
 
                         // 检查基站是否有货
                         if (!CheckBattleBaseHasItem(factory, battleBaseId, gridIdx, dispenser.filter, debugLog))
+                        {
+                            if (_logThrottle % 600 == 0)  // 每10秒记录一次
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 战场基站[{battleBaseId}] gridIdx={gridIdx} 暂无货物");
                             continue;
+                        }
 
-                        // 派出空载无人机
+                        // 【关键】始终输出派遣日志
+                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚁 开始派遣! 配送器[{dispenser.id}] → 虚拟配送器[{virtualDispenserId}](战场基站[{battleBaseId}]), filter={dispenser.filter}");
+                        
+                        // 派出空载无人机（飞向虚拟配送器的位置，即战场分析基站）
                         bool success = DispatchEmptyCourier(factory, dispenser, entityPool, battleBaseId, gridIdx, courierCarries, debugLog);
                         
-                        if (debugLog && success)
+                        if (success)
                         {
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 派出空载courier！剩余空闲={dispenser.idleCourierCount}");
+                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 派遣成功! 空载courier飞向战场基站[{battleBaseId}]，剩余空闲={dispenser.idleCourierCount}");
+                        }
+                        else
+                        {
+                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ❌ 派遣失败!");
                         }
                         
                         // 只派出一个就返回
@@ -312,7 +355,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             }
             catch (Exception ex)
             {
-                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DispatchOneCourierToBattleBase 异常: {ex.Message}");
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DispatchOneCourierToBattleBase 异常: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -347,16 +390,14 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 object? battleBase = battleBases.GetValue(battleBaseId);
                 if (battleBase == null) return false;
 
-                var idField = battleBase.GetType().GetField("id");
-                if (idField == null) return false;
-                int id = (int)idField.GetValue(battleBase)!;
-                if (id != battleBaseId) return false;
+                // 获取 entityId 检查战场基站是否存在
+                var entityIdField = battleBase.GetType().GetField("entityId");
+                if (entityIdField == null) return false;
+                int baseEntityId = (int)entityIdField.GetValue(battleBase)!;
+                if (baseEntityId <= 0) return false;  // 战场基站不存在或已被拆除
 
                 // 获取位置
                 Vector3 dispenserPos = entityPool[dispenser.entityId].pos;
-                
-                var entityIdField = battleBase.GetType().GetField("entityId");
-                int baseEntityId = entityIdField != null ? (int)entityIdField.GetValue(battleBase)! : 0;
                 if (baseEntityId <= 0) return false;
                 
                 Vector3 basePos = entityPool[baseEntityId].pos;
@@ -390,13 +431,19 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     double arcDist = Math.Acos(cosAngle) * ((r1 + r2) * 0.5);
                     float maxt = (float)Math.Sqrt(arcDist * arcDist + (r1 - r2) * (r1 - r2));
                     
-                    // 设置 courier 数据
-                    // 使用 endId = 0（无目标），避免触发"跟踪玩家"或数组越界
-                    // 但在 order.otherId 中保存特殊ID，用于识别我们的 courier
+                    // 【新方案】设置 courier 数据
+                    // endId = 虚拟配送器ID（正数！），游戏可以正常处理
+                    
+                    // 获取虚拟配送器ID
+                    if (!VirtualDispenserManager.TryGetVirtualDispenserId(battleBaseId, out int virtualDispenserId))
+                    {
+                        Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] 无法找到战场基站 {battleBaseId} 对应的虚拟配送器");
+                        return false;
+                    }
                     
                     cdType.GetField("begin")?.SetValue(courierData, dispenserPos);    // begin = 配送器（起点）
                     cdType.GetField("end")?.SetValue(courierData, basePos);           // end = 基站（终点）
-                    cdType.GetField("endId")?.SetValue(courierData, 0);               // endId = 0（避免特殊逻辑）
+                    cdType.GetField("endId")?.SetValue(courierData, virtualDispenserId); // endId = 虚拟配送器ID（正数！）
                     cdType.GetField("direction")?.SetValue(courierData, 1f);          // 1f = 正向
                     cdType.GetField("t")?.SetValue(courierData, 0f);                  // 从 0 开始
                     cdType.GetField("maxt")?.SetValue(courierData, maxt);             // 飞行距离
@@ -408,14 +455,22 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     workCourierDatas.SetValue(courierData, courierIndex);
                 }
 
-                // 设置 Order（在 otherId 中保存特殊ID，用于识别我们的 courier）
-                int specialOrderId = -(battleBaseId * 10000 + gridIdx);
+                // 设置 Order
                 object? order = orders.GetValue(courierIndex);
                 if (order != null)
                 {
                     var orderType = order.GetType();
+                    
+                    // 获取虚拟配送器ID
+                    if (!VirtualDispenserManager.TryGetVirtualDispenserId(battleBaseId, out int virtualDispenserId))
+                    {
+                        Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] 无法找到战场基站 {battleBaseId} 对应的虚拟配送器");
+                        return false;
+                    }
+                    
                     orderType.GetField("itemId")?.SetValue(order, dispenser.filter);
-                    orderType.GetField("otherId")?.SetValue(order, specialOrderId);  // 特殊ID保存在这里
+                    orderType.GetField("otherId")?.SetValue(order, virtualDispenserId);  // otherId也是虚拟配送器ID
+                    orderType.GetField("supplyIndex")?.SetValue(order, gridIdx);  // 保存gridIdx以便后续取货
                     orderType.GetField("thisOrdered")?.SetValue(order, 0);
                     orderType.GetField("otherOrdered")?.SetValue(order, 0);
                     
@@ -484,10 +539,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 object? battleBase = battleBases.GetValue(battleBaseId);
                 if (battleBase == null) return false;
 
-                var idField = battleBase.GetType().GetField("id");
-                if (idField == null) return false;
-                int id = (int)idField.GetValue(battleBase)!;
-                if (id != battleBaseId) return false;
+                // 检查 entityId 来判断战场基站是否存在（更可靠）
+                var entityIdField = battleBase.GetType().GetField("entityId");
+                if (entityIdField == null) return false;
+                int entityId = (int)entityIdField.GetValue(battleBase)!;
+                if (entityId <= 0) return false;  // 战场基站不存在或已被拆除
 
                 var storageField = battleBase.GetType().GetField("storage");
                 object? storage = storageField?.GetValue(battleBase);
@@ -548,10 +604,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 object? battleBase = battleBases.GetValue(battleBaseId);
                 if (battleBase == null) return false;
 
-                var idField = battleBase.GetType().GetField("id");
-                if (idField == null) return false;
-                int id = (int)idField.GetValue(battleBase)!;
-                if (id != battleBaseId) return false;
+                // 检查 entityId 来判断战场基站是否存在（更可靠）
+                var entityIdField = battleBase.GetType().GetField("entityId");
+                if (entityIdField == null) return false;
+                int entityId = (int)entityIdField.GetValue(battleBase)!;
+                if (entityId <= 0) return false;  // 战场基站不存在或已被拆除
 
                 var storageField = battleBase.GetType().GetField("storage");
                 object? storage = storageField?.GetValue(battleBase);

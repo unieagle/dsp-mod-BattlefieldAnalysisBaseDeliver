@@ -11,6 +11,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     public static class PlanetTransport_RefreshDispenserTraffic_NEW_Patch
     {
         private static int _callCount = 0;
+        private static System.Collections.Generic.Dictionary<string, int> _pairAddCounts = new System.Collections.Generic.Dictionary<string, int>();
 
         [HarmonyPostfix]
         static void Postfix(PlanetTransport __instance, int keyId)
@@ -23,6 +24,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 if (debugLog && verboseLog)
                     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] === RefreshDispenserTraffic(NEW) 第 {_callCount} 次调用 keyId={keyId} ===");
+
+                // 【关键】确保虚拟配送器已创建（解决时序问题）
+                // 如果 RefreshDispenserTraffic 在 Import Postfix 之前被调用，这里会先创建虚拟配送器
+                if (__instance.factory != null)
+                {
+                    VirtualDispenserManager.CreateVirtualDispensers(__instance.factory);
+                }
 
                 // 获取 dispenserPool 和 dispenserCursor
                 var dispenserPoolField = typeof(PlanetTransport).GetField("dispenserPool", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -266,28 +274,91 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             // 找到匹配！
                             foundMatch = true;
                             
-                            // 添加配对
-                            // 使用负数ID来表示战场分析基站：-(battleBaseId * 10000 + gridIdx)
-                            int specialSupplyId = -(battleBaseId * 10000 + gridIdx);
+                            // 【新方案】使用虚拟配送器ID（正数）
+                            // 获取战场分析基站对应的虚拟配送器ID
+                            if (!VirtualDispenserManager.TryGetVirtualDispenserId(battleBaseId, out int virtualDispenserId))
+                            {
+                                if (debugLog && verboseLog)
+                                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 战场分析基站 {battleBaseId} 没有对应的虚拟配送器");
+                                continue;
+                            }
 
                             try
                             {
-                                // 调用 dispenser.AddPair(supplyId, supplyIdx, demandId, demandIdx)
-                                var addPairMethod = dispenser.GetType().GetMethod("AddPair", BindingFlags.Public | BindingFlags.Instance);
-                                if (addPairMethod != null)
+                                // 【关键】检查配对是否已存在（幂等性）
+                                // ⚠️ 注意：AddPair 只在 supplyId < 0 或 demandId < 0 时增加 playerPairCount
+                                // 我们的虚拟配送器使用正数ID，所以配对在 pairCount 中，但不在 playerPairCount 中
+                                // 因此必须遍历 pairCount 而不是 playerPairCount
+                                var pairsField = dispenser.GetType().GetField("pairs");
+                                var pairCountField = dispenser.GetType().GetField("pairCount");
+                                
+                                if (pairsField != null && pairCountField != null)
                                 {
-                                    // supplyId = specialSupplyId (负数，表示战场分析基站)
-                                    // supplyIdx = gridIdx
-                                    // demandId = dispenserId
-                                    // demandIdx = 0 (配送器的槽位)
-                                    addPairMethod.Invoke(dispenser, new object[] { specialSupplyId, gridIdx, dispenserId, 0 });
-
-                                    pairCount++;
-
-                                    if (debugLog && (verboseLog || pairCount <= 5))
+                                    Array? existingPairs = pairsField.GetValue(dispenser) as Array;
+                                    int existingPairCount = (int)pairCountField.GetValue(dispenser)!;
+                                    bool alreadyExists = false;
+                                    
+                                    if (existingPairs != null && existingPairCount > 0)
                                     {
-                                        string itemName = BattlefieldBaseHelper.GetItemName(itemId);
-                                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ 已添加配对(NEW)：战场分析基站 battleBaseId={battleBaseId} (特殊ID={specialSupplyId}) gridIdx={gridIdx} itemId={itemId} ({itemName}) → 配送器 dispenserId={dispenserId}");
+                                        // ✅ 遍历所有配对（pairCount），而不只是 playerPairCount
+                                        for (int pairIdx = 0; pairIdx < existingPairCount && pairIdx < existingPairs.Length; pairIdx++)
+                                        {
+                                            object? pair = existingPairs.GetValue(pairIdx);
+                                            if (pair == null) continue;
+                                            
+                                            var pairType = pair.GetType();
+                                            var supplyIdField = pairType.GetField("supplyId");
+                                            var demandIdField = pairType.GetField("demandId");
+                                            
+                                            int existingSupplyId = supplyIdField != null ? (int)supplyIdField.GetValue(pair)! : 0;
+                                            int existingDemandId = demandIdField != null ? (int)demandIdField.GetValue(pair)! : 0;
+                                            
+                                            // 检查是否已经存在相同的配对
+                                            if (existingSupplyId == virtualDispenserId && existingDemandId == dispenserId)
+                                            {
+                                                alreadyExists = true;
+                                                if (debugLog && verboseLog)
+                                                {
+                                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔍 发现已存在的配对 at index {pairIdx}/{existingPairCount}: supplyId={existingSupplyId}, demandId={existingDemandId}");
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // 只在不存在时添加
+                                    if (!alreadyExists)
+                                    {
+                                        // 调用 dispenser.AddPair(supplyId, supplyIdx, demandId, demandIdx)
+                                        var addPairMethod = dispenser.GetType().GetMethod("AddPair", BindingFlags.Public | BindingFlags.Instance);
+                                        if (addPairMethod != null)
+                                        {
+                                            // supplyId = virtualDispenserId (正数，虚拟配送器ID！)
+                                            // supplyIdx = gridIdx
+                                            // demandId = dispenserId
+                                            // demandIdx = 0 (配送器的槽位)
+                                            addPairMethod.Invoke(dispenser, new object[] { virtualDispenserId, gridIdx, dispenserId, 0 });
+
+                                            pairCount++;
+                                            
+                                            // 【诊断】记录配对添加次数
+                                            string pairKey = $"v{virtualDispenserId}_d{dispenserId}_i{itemId}";
+                                            if (!_pairAddCounts.ContainsKey(pairKey))
+                                            {
+                                                _pairAddCounts[pairKey] = 0;
+                                            }
+                                            _pairAddCounts[pairKey]++;
+
+                                            if (debugLog && (verboseLog || pairCount <= 5))
+                                            {
+                                                string itemName = BattlefieldBaseHelper.GetItemName(itemId);
+                                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ 已添加配对（第{_pairAddCounts[pairKey]}次）：虚拟配送器[{virtualDispenserId}] (战场基站{battleBaseId}) gridIdx={gridIdx} itemId={itemId} ({itemName}) → 配送器[{dispenserId}]");
+                                            }
+                                        }
+                                    }
+                                    else if (debugLog && verboseLog)
+                                    {
+                                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⏭️ 跳过已存在的配对：虚拟配送器[{virtualDispenserId}] → 配送器[{dispenserId}]");
                                     }
                                 }
                             }
