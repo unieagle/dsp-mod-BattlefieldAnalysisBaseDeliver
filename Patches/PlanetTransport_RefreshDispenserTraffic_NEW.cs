@@ -11,7 +11,6 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     public static class PlanetTransport_RefreshDispenserTraffic_NEW_Patch
     {
         private static int _callCount = 0;
-        private static System.Collections.Generic.Dictionary<string, int> _pairAddCounts = new System.Collections.Generic.Dictionary<string, int>();
 
         [HarmonyPostfix]
         static void Postfix(PlanetTransport __instance, int keyId)
@@ -144,11 +143,14 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         
                         var filterF = disp.GetType().GetField("filter");
                         var playerModeF = disp.GetType().GetField("playerMode");
+                        var entityIdF = disp.GetType().GetField("entityId");
                         int filter = filterF != null ? (int)filterF.GetValue(disp)! : 0;
                         int playerMode = playerModeF != null ? (int)playerModeF.GetValue(disp)! : 0;
+                        int entityId = entityIdF != null ? (int)entityIdF.GetValue(disp)! : 0;
                         
                         string itemName = filter > 0 ? BattlefieldBaseHelper.GetItemName(filter) : "无";
-                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   dispenser[{i}]: filter={filter} ({itemName}), playerMode={playerMode} (2=需求)");
+                        bool isVirtual = VirtualDispenserManager.IsVirtualDispenser(i);
+                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   dispenser[{i}]: filter={filter} ({itemName}), playerMode={playerMode} (2=需求), entityId={entityId}, isVirtual={isVirtual}");
                     }
                 }
 
@@ -353,18 +355,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                                             pairCount++;
                                             
-                                            // 【诊断】记录配对添加次数
-                                            string pairKey = $"v{virtualDispenserId}_d{dispenserId}_i{itemId}";
-                                            if (!_pairAddCounts.ContainsKey(pairKey))
-                                            {
-                                                _pairAddCounts[pairKey] = 0;
-                                            }
-                                            _pairAddCounts[pairKey]++;
-
                                             if (debugLog && (verboseLog || pairCount <= 5))
                                             {
                                                 string itemName = BattlefieldBaseHelper.GetItemName(itemId);
-                                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ 已添加配对（第{_pairAddCounts[pairKey]}次）：虚拟配送器[{virtualDispenserId}] (战场基站{battleBaseId}) gridIdx={gridIdx} itemId={itemId} ({itemName}) → 配送器[{dispenserId}]");
+                                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ 已添加配对：虚拟配送器[{virtualDispenserId}] (战场基站{battleBaseId}) gridIdx={gridIdx} itemId={itemId} ({itemName}) → 配送器[{dispenserId}]");
                                             }
                                         }
                                     }

@@ -102,19 +102,19 @@ namespace BattlefieldAnalysisBaseDeliver
                 Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 DispenserComponent.OnRematchPairs 方法！");
             }
 
-            // Patch 7: BattleBaseComponent.AutoPickTrash - 监控基站物品变化
-            var autoPickTrashMethod = AccessTools.Method(typeof(BattleBaseComponent), "AutoPickTrash");
-            if (autoPickTrashMethod != null)
+            // Patch 7: BattleBaseComponent.InternalUpdate - 监控基站物品变化（包括手动放入）
+            var internalUpdateMethod = AccessTools.Method(typeof(BattleBaseComponent), "InternalUpdate");
+            if (internalUpdateMethod != null)
             {
                 harmony.Patch(
-                    original: autoPickTrashMethod,
-                    postfix: new HarmonyMethod(typeof(Patches.BattleBaseComponent_AutoPickTrash_Patch), "Postfix")
+                    original: internalUpdateMethod,
+                    postfix: new HarmonyMethod(typeof(Patches.BattleBaseComponent_InternalUpdate_Patch), "Postfix")
                 );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 BattleBaseComponent.AutoPickTrash 应用补丁（监控物品变化）。");
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 BattleBaseComponent.InternalUpdate 应用补丁（监控物品变化，包括手动放入）。");
             }
             else
             {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 BattleBaseComponent.AutoPickTrash 方法！");
+                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 BattleBaseComponent.InternalUpdate 方法！");
             }
 
             // Patch 8-10: UIControlPanel 相关 - 跳过虚拟配送器的UI显示

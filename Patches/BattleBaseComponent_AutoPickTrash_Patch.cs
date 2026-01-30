@@ -5,26 +5,31 @@ using System.Reflection;
 namespace BattlefieldAnalysisBaseDeliver.Patches
 {
     /// <summary>
-    /// 监控战场分析基站捡取物品，触发配送器刷新
+    /// 监控战场分析基站物品变化（包括自动收集和手动放入），触发配送器刷新
     /// </summary>
-    [HarmonyPatch(typeof(BattleBaseComponent), "AutoPickTrash")]
-    public static class BattleBaseComponent_AutoPickTrash_Patch
+    [HarmonyPatch(typeof(BattleBaseComponent), "InternalUpdate")]
+    public static class BattleBaseComponent_InternalUpdate_Patch
     {
-        private static int _lastItemCount = 0;
-        private static int _triggerThrottle = 0;
-        private const int TRIGGER_INTERVAL = 180; // 每180帧（约3秒）最多触发一次
+        private static System.Collections.Generic.Dictionary<int, int> _lastItemCounts = new System.Collections.Generic.Dictionary<int, int>();
+        private static System.Collections.Generic.Dictionary<int, int> _triggerThrottles = new System.Collections.Generic.Dictionary<int, int>();
+        private const int TRIGGER_INTERVAL = 120; // 每120帧（约2秒）最多触发一次
 
         [HarmonyPostfix]
         static void Postfix(BattleBaseComponent __instance, PlanetFactory factory)
         {
             try
             {
-                // 限流：避免频繁触发
-                _triggerThrottle++;
-                if (_triggerThrottle < TRIGGER_INTERVAL)
+                int battleBaseId = __instance.id;
+                
+                // 限流：避免频繁触发（每个基站独立限流）
+                if (!_triggerThrottles.ContainsKey(battleBaseId))
+                    _triggerThrottles[battleBaseId] = 0;
+                
+                _triggerThrottles[battleBaseId]++;
+                if (_triggerThrottles[battleBaseId] < TRIGGER_INTERVAL)
                     return;
 
-                _triggerThrottle = 0;
+                _triggerThrottles[battleBaseId] = 0;
 
                 // 检查基站是否有物品
                 if (__instance.storage == null)
@@ -58,14 +63,20 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     }
                 }
 
+                // 获取上次的物品数量
+                if (!_lastItemCounts.ContainsKey(battleBaseId))
+                    _lastItemCounts[battleBaseId] = 0;
+                
+                int lastItemCount = _lastItemCounts[battleBaseId];
+
                 // 如果物品种类发生变化（增加或从0变为非0），触发刷新
                 bool shouldRefresh = false;
-                if (itemTypeCount > _lastItemCount)
+                if (itemTypeCount > lastItemCount)
                 {
                     // 物品种类增加
                     shouldRefresh = true;
                 }
-                else if (_lastItemCount == 0 && itemTypeCount > 0)
+                else if (lastItemCount == 0 && itemTypeCount > 0)
                 {
                     // 从没有物品变为有物品（即使种类数相同）
                     shouldRefresh = true;
@@ -73,7 +84,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 
                 if (shouldRefresh)
                 {
-                    _lastItemCount = itemTypeCount;
+                    _lastItemCounts[battleBaseId] = itemTypeCount;
 
                     // 触发所有配送器刷新配对
                     if (factory?.transport != null)
@@ -136,10 +147,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         }
                     }
                 }
-                else if (itemTypeCount < _lastItemCount)
+                else if (itemTypeCount < lastItemCount)
                 {
                     // 物品种类减少（取完了），也更新记录
-                    _lastItemCount = itemTypeCount;
+                    _lastItemCounts[battleBaseId] = itemTypeCount;
                 }
             }
             catch (Exception ex)

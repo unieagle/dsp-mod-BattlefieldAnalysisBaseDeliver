@@ -98,8 +98,53 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 if (battleBases == null) return;
 
                 int createdCount = 0;
+                int recoveredCount = 0;
 
-                // 为每个战场分析基站创建虚拟配送器
+                // 【第一步】从存档中恢复旧的虚拟配送器映射
+                // 遍历dispenserPool，找到所有虚拟配送器（通过entityId匹配战场基站）
+                for (int dispenserId = 1; dispenserId < dispenserCursor && dispenserId < dispenserPool.Length; dispenserId++)
+                {
+                    object? dispenser = dispenserPool.GetValue(dispenserId);
+                    if (dispenser == null) continue;
+
+                    var idField = dispenser.GetType().GetField("id");
+                    var entityIdField = dispenser.GetType().GetField("entityId");
+                    
+                    if (idField == null || entityIdField == null) continue;
+                    
+                    int id = (int)idField.GetValue(dispenser)!;
+                    int entityId = (int)entityIdField.GetValue(dispenser)!;
+                    
+                    if (id != dispenserId || entityId <= 0) continue;
+
+                    // 检查这个entityId是否对应一个战场基站
+                    for (int battleBaseId = 1; battleBaseId < battleBases.Length; battleBaseId++)
+                    {
+                        object? battleBase = battleBases.GetValue(battleBaseId);
+                        if (battleBase == null) continue;
+
+                        var bbEntityIdField = battleBase.GetType().GetField("entityId");
+                        if (bbEntityIdField == null) continue;
+                        
+                        int bbEntityId = (int)bbEntityIdField.GetValue(battleBase)!;
+                        
+                        if (bbEntityId == entityId)
+                        {
+                            // 找到了！这是一个虚拟配送器，恢复映射
+                            virtualDispenserToBattleBase[dispenserId] = battleBaseId;
+                            battleBaseToVirtualDispenser[battleBaseId] = dispenserId;
+                            recoveredCount++;
+                            
+                            if (BattlefieldBaseHelper.DebugLog())
+                            {
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ♻️ 从存档恢复虚拟配送器映射：dispenser[{dispenserId}] → battleBase[{battleBaseId}] (entityId={entityId})");
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // 【第二步】为没有虚拟配送器的战场基站创建新的
                 for (int battleBaseId = 1; battleBaseId < battleBases.Length; battleBaseId++)
                 {
                     object? battleBase = battleBases.GetValue(battleBaseId);
@@ -193,7 +238,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 // 更新 dispenserCursor
                 dispenserCursorField.SetValue(factory.transport, dispenserCursor);
 
-                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 共创建 {createdCount} 个虚拟配送器");
+                if (recoveredCount > 0 || createdCount > 0)
+                {
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 虚拟配送器：从存档恢复 {recoveredCount} 个，新创建 {createdCount} 个");
+                }
             }
             catch (Exception ex)
             {
