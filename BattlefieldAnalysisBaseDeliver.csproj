@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- 游戏安装路径（Assembly-CSharp、UnityEngine 等） -->
+    <DSPGamePath>C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program</DSPGamePath>
+    <!-- r2modman 的 BepInEx 路径（引用 BepInEx.dll、0Harmony.dll，编译后复制 Mod 到此） -->
+    <BepInExPath>C:\Users\uniea\AppData\Roaming\r2modmanPlus-local\DysonSphereProgram\profiles\Default\BepInEx</BepInExPath>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>BattlefieldAnalysisBaseDeliver</AssemblyName>
+    <RootNamespace>BattlefieldAnalysisBaseDeliver</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>YourName</Authors>
+    <Description>允许配送无人机从战场分析基站直接取物品</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 使用 r2modman 配置中的 BepInEx -->
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExPath)\core\BepInEx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExPath)\core\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <!-- 游戏程序集 -->
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(DSPGamePath)\DSPGAME_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(DSPGamePath)\DSPGAME_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(DSPGamePath)\DSPGAME_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- GameCodeReference 仅作参考，不参与编译，避免与 Assembly-CSharp 类型冲突 -->
+  <ItemGroup>
+    <Compile Remove="GameCodeReference\**\*.cs" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if not exist &quot;$(BepInExPath)\plugins\$(TargetName)&quot; mkdir &quot;$(BepInExPath)\plugins\$(TargetName)&quot;" />
+    <Exec Command="xcopy /Y &quot;$(TargetPath)&quot; &quot;$(BepInExPath)\plugins\$(TargetName)\&quot;" />
+  </Target>
+
+</Project>

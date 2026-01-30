@@ -1,0 +1,1682 @@
+[Message:   BepInEx] BepInEx 5.4.17.0 - DSPGAME (2026/1/23 10:22:36)
+[Info   :   BepInEx] Running under Unity v2022.3.62.1451004
+[Info   :   BepInEx] CLR runtime version: 4.0.30319.42000
+[Info   :   BepInEx] Supports SRE: True
+[Info   :   BepInEx] System platform: Bits64, Windows
+[Message:   BepInEx] Preloader started
+[Info   :   BepInEx] Loaded 1 patcher method from [BepInEx.Preloader 5.4.17.0]
+[Info   :   BepInEx] Loaded 1 patcher method from [CommonAPIPreloader 1.6.7.0]
+[Info   :   BepInEx] Loaded 1 patcher method from [ModFixerOnePreloader 2.1.0.0]
+[Info   :   BepInEx] 3 patcher plugins loaded
+[Info   :   BepInEx] Patching [UnityEngine.CoreModule] with [BepInEx.Chainloader]
+[Info   :   BepInEx] Patching [Assembly-CSharp] with [CommonAPI.Preloader]
+[Info   :Common API Preloader] Preloader patching is successful!
+[Info   :   BepInEx] Patching [Assembly-CSharp] with [ModFixerOne.Preloader]
+[Info   :   BepInEx] Patching [UnityEngine.CoreModule] with [ModFixerOne.Preloader]
+[Info   :ModFixerOne Preloader] Type forward for UnityEngine.Input: UnityEngine.CoreModule => UnityEngine.InputLegacyModule
+[Info   :   BepInEx] Patching [UnityEngine.UI] with [ModFixerOne.Preloader]
+[Info   :   Console] Successfully injected property 'readOnly' into 'InputField'.
+[Message:   BepInEx] Preloader finished
+[Message:   BepInEx] Chainloader ready
+[Message:   BepInEx] Chainloader started
+[Info   :   BepInEx] 20 plugins to load
+[Warning:   BepInEx] Plugin [Auxilaryfunction 3.0.6] targets a wrong version of BepInEx (5.4.23.2) and might not work until you update
+[Warning:   BepInEx] Plugin [DSP Common API 1.6.7.0] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Warning:   BepInEx] Plugin [Common API Nebula Compatibility 1.6.7.0] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Warning:   BepInEx] Plugin [DSP Mod Save 1.2.2] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Warning:   BepInEx] Plugin [Galactic Scale 2 Nebula Compatibility Plug-In 1.0.0.0] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Warning:   BepInEx] Plugin [Galactic Scale 2 Plug-In 2.77.1] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Warning:   BepInEx] Plugin [PlanetFinder 1.2.2] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Warning:   BepInEx] Plugin [UXAssist 1.5.0] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Warning:   BepInEx] Plugin [LDBTool 3.0.2] targets a wrong version of BepInEx (5.4.20.0) and might not work until you update
+[Info   :   BepInEx] Loading [ModFixerOne 2.1.1]
+[Info   :   BepInEx] Loading [Reusable Metadata 1.0.7]
+[Info   :Reusable Metadata] Reusable Metadata 1.0.7 Patch successful
+[Info   :   BepInEx] Loading [Auxilaryfunction 3.0.6]
+[Info   :   BepInEx] Loading [Place the pump anywhere. Pumps whatever ocene type the planet has. 1.0.0]
+[Info   :   BepInEx] Loading [LDBTool 3.0.2]
+[Info   :   LDBTool] LDBTool is loaded successfully!
+[Info   :   BepInEx] Loading [DSP Mod Save 1.2.2]
+[Info   :   BepInEx] Loading [DSP Common API 1.6.7.0]
+[Info   :DSP Common API] Enabling CommonAPI Submodule: LocalizationModule
+[Info   :DSP Common API] Enabling CommonAPI Submodule: PickerExtensionsSystem
+[Info   :DSP Common API] Enabling CommonAPI Submodule: ProtoRegistry
+[Info   :DSP Common API] Enabling CommonAPI Submodule: TabSystem
+[Info   :DSP Common API] Enabling CommonAPI Submodule: CustomKeyBindSystem
+[Info   :DSP Common API] Common API is initialized!
+[Info   :   BepInEx] Loading [DSPCalculator 0.5.22]
+[Info   :   BepInEx] Loading [PlanetFinder 1.2.2]
+[Info   :   BepInEx] Loading [战场分析基站配送支持 1.0.0]
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 正在加载... (GUID: com.yourname.battlefieldanalysisbasedeliver)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 已对 StationComponent.HasLocalSupply 应用补丁。
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 已对 StationComponent.RematchLocalPairs 应用补丁（物流配送器/机甲可从战场分析基站取物）。
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 已对 StationComponent.Init 应用补丁（战场分析基站点击打开基站 UI）。
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 已对 PlanetFactory.CreateEntityLogicComponents 应用补丁（战场分析基站将加入本地配送站点池）。
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 已对 PlanetTransport.RefreshDispenserTraffic 应用补丁（配送器可从战场分析基站取物）。
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 已对 PlanetFactory.Import 应用补丁（旧存档的战场分析基站也能生效）。
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 加载完成！战场分析基站 protoId = 3009
+[Info   :   BepInEx] Loading [CloseError 1.0.0]
+[Error  :   BepInEx] Could not load [Common API Nebula Compatibility 1.6.7.0] because it has missing dependencies: dsp.nebula-multiplayer-api
+[Info   :   BepInEx] Loading [Galactic Scale 2 Plug-In 2.77.1]
+[Message:       GS2]  
+[Message:       GS2] .─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─_─.
+[Message:       GS2] │  ╔═╗┌─┐┬  ┌─┐┌─┐┌┬┐┬┌─┐  ╔═╗┌─┐┌─┐┬  ┌─┐                                │
+[Message:       GS2] │  ║ ╦├─┤│  ├─┤│   │ ││    ╚═╗│  ├─┤│  ├┤  DSP Version            0.10.34 │
+[Message:       GS2] │  ╚═╝┴ ┴┴─┘┴ ┴└─┘ ┴ ┴└─┘  ╚═╝└─┘┴ ┴┴─┘└─┘ Version    2.77.0 Initializing │
+[Message:       GS2] └──────https://discord.gg/NbpBn6gM6d──────────────────────────────────────┘
+[Message:       GS2] 
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly CommonAPI, Version=1.6.7.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Exception of type 'System.Reflection.ReflectionTypeLoadException' was thrown.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+  at (wrapper managed-to-native) System.Reflection.Assembly.GetTypes(System.Reflection.Assembly,bool)
+  at System.Reflection.Assembly.GetTypes () [0x00000] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at HarmonyLib.AccessTools.GetTypesFromAssembly (System.Reflection.Assembly assembly) [0x0000d] in <7f26c0a74c5b43c2a5fc5efd29ec63d6>:0 
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly GalacticScale, Version=2.77.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Exception of type 'System.Reflection.ReflectionTypeLoadException' was thrown.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+  at (wrapper managed-to-native) System.Reflection.Assembly.GetTypes(System.Reflection.Assembly,bool)
+  at System.Reflection.Assembly.GetTypes () [0x00000] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at HarmonyLib.AccessTools.GetTypesFromAssembly (System.Reflection.Assembly assembly) [0x0000d] in <7f26c0a74c5b43c2a5fc5efd29ec63d6>:0 
+System.IO.FileNotFoundException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+File name: 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null'
+System.IO.FileNotFoundException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+File name: 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null'
+System.IO.FileNotFoundException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+File name: 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null'
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly CommonAPI, Version=1.6.7.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Exception of type 'System.Reflection.ReflectionTypeLoadException' was thrown.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+  at (wrapper managed-to-native) System.Reflection.Assembly.GetTypes(System.Reflection.Assembly,bool)
+  at System.Reflection.Assembly.GetTypes () [0x00000] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at HarmonyLib.AccessTools.GetTypesFromAssembly (System.Reflection.Assembly assembly) [0x0000d] in <7f26c0a74c5b43c2a5fc5efd29ec63d6>:0 
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly GalacticScale, Version=2.77.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Exception of type 'System.Reflection.ReflectionTypeLoadException' was thrown.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+  at (wrapper managed-to-native) System.Reflection.Assembly.GetTypes(System.Reflection.Assembly,bool)
+  at System.Reflection.Assembly.GetTypes () [0x00000] in <1071a2cb0cb3433aae80a793c277a048>:0 
+  at HarmonyLib.AccessTools.GetTypesFromAssembly (System.Reflection.Assembly assembly) [0x0000d] in <7f26c0a74c5b43c2a5fc5efd29ec63d6>:0 
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+System.TypeLoadException: Could not load file or assembly 'NebulaAPI, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
+[Error  :   BepInEx] Could not load [Galactic Scale 2 Nebula Compatibility Plug-In 1.0.0.0] because it has missing dependencies: dsp.nebula-multiplayer-api
+[Info   :   BepInEx] Loading [UXAssist 1.5.0]
+[Warning:  HarmonyX] AccessTools.Field: Could not find field for type DysonSphereLayer and name totalNodeSP
+[Warning:  HarmonyX] AccessTools.Field: Could not find field for type DysonSphereLayer and name totalFrameSP
+[Warning:  HarmonyX] AccessTools.Field: Could not find field for type DysonSphereLayer and name totalCP
+[Info   :   BepInEx] Loading [PlanetwideMining 0.0.15]
+[Info   :PlanetwideMining] Plugin PlanetwideMining is loaded!
+[Info   :   BepInEx] Loading [AutoMute 1.3.2]
+[Info   :   BepInEx] Loading [DeliverySlotsTweaks 1.5.16]
+[Info   :   BepInEx] Loading [MassRecipePaste 1.1.3]
+[Info   :   BepInEx] Loading [MassRecipePasteCAPIcompat 1.0.0]
+[Message:   BepInEx] Chainloader startup complete
+[Info   :DSP Common API] Editing localizations!
+[Warning:       GS2]  133:GS2MainSettings|Init|!
+[Message:       GS2]  146:GS2+GSPreferences|ReadFromDisk|Loading Preferences from C:\Users\uniea\AppData\Roaming\r2modmanPlus-local\DysonSphereProgram\profiles\Default\BepInEx\config\GalacticScale2\Preferences.json
+[Warning:       GS2]   43:GS2Generator3|Import|Importing Preferences
+[Warning:       GS2]   47:GS2Generator3|Import|Khz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Khz to 1.044466:1.50471
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Mhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Mhz to 0.7385489:1.06399
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Ahz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Ahz to 1.381698:1.990544
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Bhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Bhz to 2.132007:3.071476
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Fhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Fhz to 1.087115:1.566151
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Ghz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Ghz to 0.9534626:1.373606
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Ohz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Ohz to 3.302891:4.758309
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGhz to 0.8790491:1.266402
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGhz to 0.9534626:1.373606
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGhz to 2.335497:3.364633
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGhz to 3.015113:4.343722
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGhz to 3.692745:5.319952
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDhz to 0.2132007:0.3071476
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NShz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NShz to 0.5640761:0.8126361
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHhz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHhz to 0.07385489:0.106399
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|minDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:minDistance to 2
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|stepLength
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:stepLength to 3:5
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthStar
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthStar to 14
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|rotationMulti
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:rotationMulti to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|innerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:innerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|allowResonances
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:allowResonances to True
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|cometsEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:cometsEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|cometChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:cometChance to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|galaxyDensity
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:galaxyDensity to 5
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|defaultStarCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:defaultStarCount to 64
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|starSizeMulti
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:starSizeMulti to 10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|binaryChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:binaryChance to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthPlanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthPlanetSize to 200
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthPlanetMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthPlanetMoon to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthPlanetGasMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthPlanetGasMoon to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthPlanetUnlock
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthPlanetUnlock to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthPlanetSiTi
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthPlanetSiTi to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|noRaresStartingSystem
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:noRaresStartingSystem to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthTidalLock
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthTidalLock to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|birthRareDisable
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:birthRareDisable to True
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|limitPlanetSize20
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:limitPlanetSize20 to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|limitPlanetSize50
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:limitPlanetSize50 to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|limitPlanetSize100
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:limitPlanetSize100 to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|limitPlanetSize200
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:limitPlanetSize200 to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|limitPlanetSize300
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:limitPlanetSize300 to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|limitPlanetSize400
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:limitPlanetSize400 to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|limitPlanetSize500
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:limitPlanetSize500 to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|moonsAreSmall
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:moonsAreSmall to True
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|moonBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:moonBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|hugeGasGiants
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:hugeGasGiants to True
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|tidalLockInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:tidalLockInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|secondarySatellites
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:secondarySatellites to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|planetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:planetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|planetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:planetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|gasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:gasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|sizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:sizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|countBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:countBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqK
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqK to 40
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqM
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqM to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqG
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqG to 30
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqF
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqF to 25
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqA
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqA to 10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqB
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqB to 4
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqO
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqO to 2
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqBH
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqBH to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqNS
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqNS to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqWD
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqWD to 2
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqRG
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqRG to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqYG
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqYG to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqWG
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqWG to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqBG
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqBG to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|freqOG
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:freqOG to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|chanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:chanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|chanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:chanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|chanceMoonMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:chanceMoonMoon to 5
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|moonCeption
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:moonCeption to True
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|orbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:orbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|hzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:hzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|hz
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:hz to 0.9:2
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|orbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:orbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|inclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:inclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|orbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:orbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|rareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:rareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|luminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:luminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|solarScheme
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:solarScheme to InverseSquare
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|solarRange
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:solarRange to 1:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|solarLerp
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:solarLerp to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|orbitSpacing
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:orbitSpacing to 0.05
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|vanillaStarNames
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:vanillaStarNames to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|planetNames
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:planetNames to Default
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|preferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:preferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Korbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Korbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Kinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Kinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|KbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:KbinaryEnabled to True
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|McountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:McountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Morbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Morbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Minclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Minclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|MbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:MbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Forbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Forbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|ForbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:ForbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Finclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Finclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|ForbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:ForbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|FbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:FbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Gorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Gorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Ginclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Ginclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|GbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:GbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Aorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Aorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Ainclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Ainclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|ApreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:ApreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|ArareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:ArareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|AbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:AbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Borbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Borbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Binclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Binclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Oorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Oorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|Oinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:Oinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|ObinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:ObinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WDbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WDbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|RGbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:RGbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|YGbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:YGbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|WGbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:WGbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BGbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BGbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|OGbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:OGbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NScountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NScountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NShzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NShzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|NSbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:NSbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHinnerPlanetDistance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHinnerPlanetDistance to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHminStars
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHminStars to 0
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHplanetCount
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHplanetCount to 1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHplanetSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHplanetSize to 50:500
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHgasSize
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHgasSize to 500:5000
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHsizeBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHsizeBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHcountBias
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHcountBias to 50
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHchanceGas
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHchanceGas to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHchanceMoon
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHchanceMoon to 20
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHorbits
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHorbits to 0.1:10
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHorbitOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHorbitOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHinclination
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHinclination to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHorbitLongitude
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHorbitLongitude to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHhzOverride
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHhzOverride to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHpreferInnerPlanets
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHpreferInnerPlanets to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHrareChance
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHrareChance to -1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHluminosityBoost
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHluminosityBoost to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|BHbinaryEnabled
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:BHbinaryEnabled to False
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|binaryDistanceMulti
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:binaryDistanceMulti to 1
+[Warning:       GS2]   52:GS2Generator3|Import|UI Loaded, setting UI Element to match
+[Warning:       GS2]   47:GS2Generator3|Import|moonsCeption
+[Warning:       GS2]   48:GS2Generator3|Import|Setting:moonsCeption to True
+[Warning:       GS2]   60:GS2Generator3|Import|**0
+[Warning:       GS2]   61:GS2Generator3|Import|**K
+[Warning:       GS2]   60:GS2Generator3|Import|**1
+[Warning:       GS2]   61:GS2Generator3|Import|**M
+[Warning:       GS2]   60:GS2Generator3|Import|**2
+[Warning:       GS2]   61:GS2Generator3|Import|**F
+[Warning:       GS2]   60:GS2Generator3|Import|**3
+[Warning:       GS2]   61:GS2Generator3|Import|**G
+[Warning:       GS2]   60:GS2Generator3|Import|**4
+[Warning:       GS2]   61:GS2Generator3|Import|**A
+[Warning:       GS2]   60:GS2Generator3|Import|**5
+[Warning:       GS2]   61:GS2Generator3|Import|**B
+[Warning:       GS2]   60:GS2Generator3|Import|**6
+[Warning:       GS2]   61:GS2Generator3|Import|**O
+[Warning:       GS2]   60:GS2Generator3|Import|**7
+[Warning:       GS2]   61:GS2Generator3|Import|**WD
+[Warning:       GS2]   60:GS2Generator3|Import|**8
+[Warning:       GS2]   61:GS2Generator3|Import|**RG
+[Warning:       GS2]   60:GS2Generator3|Import|**9
+[Warning:       GS2]   61:GS2Generator3|Import|**YG
+[Warning:       GS2]   60:GS2Generator3|Import|**10
+[Warning:       GS2]   61:GS2Generator3|Import|**WG
+[Warning:       GS2]   60:GS2Generator3|Import|**11
+[Warning:       GS2]   61:GS2Generator3|Import|**BG
+[Warning:       GS2]   60:GS2Generator3|Import|**12
+[Warning:       GS2]   61:GS2Generator3|Import|**OG
+[Warning:       GS2]   60:GS2Generator3|Import|**13
+[Warning:       GS2]   61:GS2Generator3|Import|**NS
+[Warning:       GS2]   60:GS2Generator3|Import|**14
+[Warning:       GS2]   61:GS2Generator3|Import|**BH
+[Warning:       GS2]   12:PatchOnGameDesc|Import|Import
+[Warning:       GS2]   42:PatchOnGameDesc|Import|Menu Demo: True
+[Info   :ModFixerOne] LDBTool - OK
+[Info   :DSP Mod Save] DSP Mod Save is initialized!
+[Warning:  HarmonyX] AccessTools.Property: Could not find property for type System.IO.BinaryReader and name ReadInt32
+[Warning:  HarmonyX] AccessTools.Field: Could not find field for type Auxilaryfunction.Auxilaryfunction and name ShowStationInfo
+[Warning:  UXAssist] Failed to get ShowStationInfo from Auxilaryfunction
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=1 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshStationTraffic 未调用: data=null（仅前 3 次打日志）
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=290 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshStationTraffic 未调用: data=null（仅前 3 次打日志）
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=523 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=705 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshStationTraffic 未调用: data=null（仅前 3 次打日志）
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=980 (每 5 秒打一次，确认 Mod 在运行)
+[Warning:       GS2]   12:PatchOnPlanetModelingManager|PlanetComputeThreadMain|Loop start. ThreadFlag: Running
+[Warning:       GS2]   12:PatchOnPlanetModelingManager|PlanetScanThreadMain|Loop start. ThreadFlag: Running
+[Info   :DSP Mod Save] _autosave_tmp: Game mod save not exist
+[Warning:       GS2]   12:PatchOnGameDesc|Import|Import
+[Warning:       GS2]   42:PatchOnGameDesc|Import|Menu Demo: True
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 1 次调用 keyId=0 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=1, stationCursor=1
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=103，开始遍历站点...
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 0 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] Import: 开始检查，entityPool.Length=1024, 目标 protoId=3009
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] Import: 有效实体=0, protoId 匹配=0, 检查了 0 个战场分析基站，创建了 0 个 StationComponent
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=1127 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :DSP Common API] Checking missing machines!
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 2 次调用 keyId=-10000 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=1, stationCursor=1
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=103，开始遍历站点...
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 0 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :   LDBTool] Pre Loading...
+[Info   :   LDBTool] Post Loading...
+[Info   :DSP Common API] Reinit cached data!
+[Info   :DSP Common API] Post loading is complete!
+[Info   :   LDBTool] Done.
+[Warning:DSP Common API] This version of CommonAPI was built for build id "0.10.33.26941", you are running "0.10.34.28347".
+[Warning:DSP Common API] Should any problems arise, please check for a new version before reporting issues.
+[Info   :ModFixerOne] PreloadAndInitAll
+[Warning:       GS2]   12:PatchOnGameDesc|Import|Import
+[Warning:       GS2]   42:PatchOnGameDesc|Import|Menu Demo: True
+[Warning:       GS2]   12:PatchOnGameData|ImportGamePropertyData|Importing GamePropertyData
+[Warning:       GS2]   12:PatchOnGameDesc|Import|Import
+[Warning:       GS2]   42:PatchOnGameDesc|Import|Menu Demo: True
+[Warning:       GS2]   22:GS2|Import|Import
+[Warning:       GS2]   28:GS2|Import|Initial Stream Position:243951
+[Warning:       GS2]   38:GS2|Import|DSV Contained No GS2 Data.
+[Warning:       GS2]   39:GS2|Import|No input
+[Warning:       GS2]   21:PatchOnGameData|ImportGamePropertyData|Imported GS2 Data
+[Warning:       GS2]   25:PatchOnGameData|ImportGamePropertyData|Loading AchievData 13
+[Warning:       GS2]   33:PatchOnGameData|ImportGamePropertyData|LoadingPrefsData
+[Warning:       GS2]   37:PatchOnGameData|ImportGamePropertyData|Loaded
+[Warning:       GS2]   40:PatchOnGameData|ImportGamePropertyData|Loading GameHistoryData
+[Warning:       GS2]   39:PatchOnUILoadGameWindow|OnSelectedChange|Header Version:7
+[Warning:       GS2]   14:PatchOnPlanetModelingManager|PlanetComputeThreadMain|Loop end. ThreadFlag: Ended
+[Warning:       GS2]   14:PatchOnPlanetModelingManager|PlanetScanThreadMain|Loop end. ThreadFlag: Ended
+[Warning:       GS2]   32:PatchOnPlanetModelingManager|StartPlanetScanThread_Prefix|PlanetScanThread is in Ending state. Starting a new thread
+[Warning:       GS2]   12:PatchOnPlanetModelingManager|PlanetComputeThreadMain|Loop start. ThreadFlag: Running
+[Warning:       GS2]   12:PatchOnPlanetModelingManager|PlanetScanThreadMain|Loop start. ThreadFlag: Running
+[Info   :DSP Mod Save] Pre Load!
+[Info   :DSP Mod Save] File has mod dsp.common-api.CommonAPI save data starting from 129
+[Info   :DSP Mod Save] File has mod org.soardev.uxassist save data starting from 147
+[Warning:       GS2]   12:PatchOnGameDesc|Import|Import
+[Warning:       GS2]   18:PatchOnGameDesc|Import|Not Menu Demo. Importing
+[Warning:       GS2]   22:GS2|Import|Import
+[Warning:       GS2]   28:GS2|Import|Initial Stream Position:243951
+[Warning:       GS2]   38:GS2|Import|DSV Contained No GS2 Data.
+[Warning:       GS2]   39:GS2|Import|No input
+[Warning:       GS2]   49:GS2|Import|parseResult:False
+[Warning:       GS2]   50:GS2|Import|Input file : C:/Users/uniea/Documents/Dyson Sphere Program/Save/--20260128-.gs2
+[Warning:       GS2]   51:GS2|Import|After Parse, Stream Position:243951
+[Warning:       GS2]   56:GS2|Import|*** Loading Settings From C:/Users/uniea/Documents/Dyson Sphere Program/Save/--20260128-.gs2
+[Warning:       GS2]   58:GS2|Import|StarCount : 256
+[Warning:       GS2]   84:GS2|Import|StarCount2 : 256
+[Warning:       GS2]   97:GS2|Import|StarCount3 : 256
+[Warning:       GS2]   99:GS2|Import|Final Stream Position:243951
+[Warning:       GS2]   83:GS2|ProcessGalaxy|Setting up birthPlanet 1805
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 3 次调用 keyId=0 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=2, stationCursor=1
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=1805，开始遍历站点...
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 0 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] Import: 开始检查，entityPool.Length=1024, 目标 protoId=3009
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] Import: ✓✓✓ 找到战场分析基站！
+[Info   :战场分析基站配送支持] [战场分析基站配送支持]   entityId=91
+[Info   :战场分析基站配送支持] [战场分析基站配送支持]   protoId=3009 (名称: 战场分析基站)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持]   battleBaseId=1
+[Info   :战场分析基站配送支持] [战场分析基站配送支持]   modelIndex=453
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] Import: NewStationComponent 失败（可能是其他 Mod 兼容性问题）: Object reference not set to an instance of an object
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] Import: 尝试手动创建 StationComponent...
+[Error  :战场分析基站配送支持] [战场分析基站配送支持] CreateStationComponentManually: 由于其他 Mod (如 Auxilaryfunction) 的兼容性问题，无法创建 StationComponent
+[Error  :战场分析基站配送支持] [战场分析基站配送支持] 建议：尝试禁用 Auxilaryfunction Mod 或联系该 Mod 作者修复 NewStationComponent patch 的 bug
+[Error  :战场分析基站配送支持] [战场分析基站配送支持] Import: ✗ 无法为战场分析基站 entityId=91 创建 StationComponent！
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] Import: 有效实体=93, protoId 匹配=1, 检查了 1 个战场分析基站，创建了 0 个 StationComponent
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Nema system radius 94.58037 > 94.09697
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 3.088082
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Gulmorogod system radius 90.91125 > 90.64936
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 88.19927
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Gulmorogod system radius 91.09798 > 90.64936
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 91.48188
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Ealur system radius 97.45099 > 96.93479
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 49.10415
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Nidebora system radius 97.72115 > 97.16045
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 97.72115
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Esubara system radius 98.55707 > 97.91448
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 83.55314
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Anttiri system radius 88.68506 > 88.18259
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 33.40791
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Getrenjesa system radius 98.65576 > 98.32101
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 63.6078
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Mannar system radius 81.35368 > 80.64711
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 53.96395
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Ashab system radius 98.28268 > 98.14083
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 1.049993
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Aldali system radius 99.83733 > 99.30996
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 99.58362
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Faurulle system radius 29.38347 > 29.06289
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 8.650677
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shuria system radius 100.7389 > 99.78777
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 16.09533
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Ussad system radius 58.9649 > 58.33536
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 36.91873
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Marthia system radius 81.3243 > 81.20849
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 81.4256
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Ilonarav system radius 99.45603 > 98.77917
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 10.06256
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Esubara system radius 95.75949 > 95.01676
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 94.11061
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Marthia system radius 65.18293 > 64.93508
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 8.369563
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Marthia system radius 65.49802 > 64.93508
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 8.90004
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hroduko system radius 100.7523 > 99.93067
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 66.54961
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hroduko system radius 100.6246 > 99.93067
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 38.11816
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Nakugard system radius 84.02772 > 83.10124
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 23.41228
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Auga system radius 91.62907 > 91.13034
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 22.5672
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Gergish system radius 99.16706 > 98.6715
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 98.99699
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Sosh system radius 57.7677 > 57.00906
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 7.600928
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Bamiette system radius 91.07277 > 90.27187
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 91.07277
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Siseide system radius 99.01053 > 98.62455
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 52.79506
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Siseide system radius 99.34463 > 98.62455
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 57.58215
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Sacalan system radius 96.96993 > 96.70168
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 67.21527
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Saminer system radius 95.23484 > 94.41157
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 68.70918
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Saminer system radius 94.92231 > 94.41157
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 82.30852
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Liukikka system radius 89.8828 > 89.43216
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 49.47932
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Itrin system radius 78.76862 > 78.48877
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 43.09331
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Itrin system radius 78.95378 > 78.48877
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 79.16906
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Itrin system radius 79.08523 > 78.48877
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 46.4617
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Ation system radius 65.25951 > 64.97899
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 0.3469151
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Nahol system radius 95.15 > 94.44358
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 88.68787
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Indregulle system radius 99.10455 > 98.69855
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 3.022378
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Imeshasa system radius 99.19336 > 98.72795
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 25.01873
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Imeshasa system radius 99.33182 > 98.72795
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 64.04623
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Imeshasa system radius 98.89206 > 98.72795
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 80.35567
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Boranai system radius 95.27334 > 94.65106
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 86.91956
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Aymaerne system radius 94.65805 > 93.77093
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 94.1553
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Simbeloud system radius 94.66467 > 94.25071
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 92.90105
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Simbeloud system radius 95.19559 > 94.25071
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 94.66467
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Kibursha system radius 95.83584 > 95.25933
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 95.83584
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Gesh system radius 99.25784 > 98.39025
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 1.916851
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Amdonen system radius 99.19847 > 98.87427
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 97.06044
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hotrardik system radius 94.77008 > 94.26732
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 50.61205
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Sakht system radius 99.56372 > 99.02749
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 53.459
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Sosan system radius 98.5899 > 98.11812
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 78.04936
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Meildolf system radius 99.35773 > 98.61261
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 8.390786
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Kamio system radius 89.48089 > 88.82485
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 2.703027
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Emolgranlan system radius 62.44974 > 62.18317
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 62.44974
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hasmijaala system radius 89.75621 > 89.25356
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 27.391
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hasmijaala system radius 90.12486 > 89.25356
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 7.796284
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Avele system radius 87.49483 > 87.24831
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 72.47754
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Avele system radius 87.30118 > 87.24831
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 75.40002
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Danyana system radius 100.4799 > 99.63699
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 1.117349
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Danyana system radius 100.3533 > 99.63699
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 54.74277
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Veisto system radius 91.54578 > 90.68811
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 75.94021
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Gusandall system radius 77.87786 > 77.17612
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 11.8477
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shura system radius 43.99855 > 43.60373
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 42.02016
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shura system radius 43.79001 > 43.60373
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 40.54561
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shura system radius 44.20391 > 43.60373
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 43.79001
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Yashunen system radius 77.58064 > 77.07546
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 77.58064
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Thashkarai system radius 92.00304 > 91.64019
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 2.62857
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Thashkarai system radius 91.78309 > 91.64019
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 91.78309
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Iges system radius 87.15172 > 86.96761
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 13.61178
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Rairomon system radius 87.97148 > 87.45421
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 77.6654
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Brarel system radius 93.75582 > 93.10802
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 26.08276
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Kassigainen system radius 94.11157 > 93.62468
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 88.15965
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Geztic system radius 79.41651 > 79.21386
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 55.67588
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Dihra system radius 94.15105 > 93.72501
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 83.41489
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Estene system radius 85.13657 > 84.96627
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 84.62477
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Chemilip system radius 86.35162 > 85.58887
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 86.18259
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Ziona system radius 98.95367 > 98.53963
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 99.14246
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Reynire system radius 99.58741 > 98.78231
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 99.3237
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Reynire system radius 99.3237 > 98.78231
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 50.54092
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Varigne system radius 99.00667 > 98.14982
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 16.93711
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Varigne system radius 98.80318 > 98.14982
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 65.52635
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Naguton system radius 90.35251 > 89.60674
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 89.33022
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Inaro system radius 94.23168 > 93.92186
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 91.22227
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hysera system radius 49.49856 > 48.77861
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 26.64263
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hysera system radius 49.03984 > 48.77861
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 2.026157
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Aeschee system radius 85.46363 > 85.04626
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 7.682404
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Osis system radius 100.4516 > 99.78576
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 100.4516
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Keba system radius 76.55852 > 75.936
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 8.907063
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shastal system radius 87.87665 > 87.20783
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 14.38823
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Illuin system radius 99.83495 > 99.35927
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 99.83495
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Brapelille system radius 58.79866 > 58.34322
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 6.260972
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Kudi system radius 96.65959 > 95.84371
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 96.41431
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Kudi system radius 96.41431 > 95.84371
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 70.13319
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Odebeinn system radius 99.90936 > 99.36054
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 98.71918
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Aedald system radius 88.08212 > 87.15308
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 4.399282
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Aedald system radius 87.95148 > 87.15308
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 66.53502
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Atoosh system radius 99.32475 > 98.72227
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 62.33053
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Harva system radius 86.13374 > 85.24657
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 85.8134
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Harva system radius 85.43521 > 85.24657
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 86.13374
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Earwik system radius 77.828 > 77.44122
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 29.86495
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Litiura system radius 99.49957 > 99.4488
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 23.56696
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Rephirib system radius 85.89898 > 84.92982
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 4.09192
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Rephirib system radius 85.4333 > 84.92982
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 48.71946
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shura system radius 100.4697 > 99.88023
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 53.21518
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shemah system radius 91.90681 > 91.29779
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 86.14532
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shemah system radius 92.16972 > 91.29779
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 91.20963
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Shemah system radius 91.47984 > 91.29779
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 91.47984
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Alakgur system radius 53.82653 > 53.19322
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 15.62736
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Keproh system radius 90.77858 > 89.9325
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 18.63257
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Keproh system radius 90.63768 > 89.9325
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 24.34492
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Halaima system radius 99.22148 > 98.64107
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 20.46337
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Somouh system radius 78.71902 > 77.93941
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 72.83862
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Somouh system radius 78.48177 > 77.93941
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 78.71902
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Arzieh system radius 81.58514 > 81.02586
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 32.33061
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Jerma system radius 99.88041 > 99.31316
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 99.14974
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adrel system radius 80.25134 > 79.53002
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 51.21471
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adrel system radius 79.98748 > 79.53002
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 2.134451
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Poitot system radius 64.82069 > 64.51405
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 10.50497
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Jolevier system radius 94.8058 > 94.23236
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 11.578
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Lazara system radius 72.44065 > 72.19276
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 72.44065
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Ayeroilen system radius 60.89169 > 60.06619
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 42.98491
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Marosier system radius 100.199 > 99.62898
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 100.199
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Basgerin system radius 86.94707 > 86.32571
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 5.761651
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Basgerin system radius 86.72104 > 86.32571
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 67.01881
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Todifrauan system radius 98.36716 > 97.89178
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 85.25202
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Nouta system radius 100.2289 > 99.57013
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 100.445
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Nouta system radius 100.445 > 99.57013
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 96.30097
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Bahromab system radius 96.24751 > 95.93385
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 44.22211
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Bahromab system radius 96.62624 > 95.93385
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 96.24751
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Sakhti system radius 74.6188 > 74.09294
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 74.84126
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Sakhti system radius 74.84126 > 74.09294
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 32.40666
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adar system radius 100.7062 > 99.82136
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 100.1067
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adar system radius 100.2295 > 99.82136
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 2.558455
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adar system radius 100.5474 > 99.82136
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 100.3674
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adar system radius 100.1067 > 99.82136
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 100.0128
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adar system radius 100.0128 > 99.82136
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 54.35238
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Adar system radius 100.3674 > 99.82136
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 100.2295
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Hjoramold system radius 92.14075 > 91.6296
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 87.607
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Gulfonodi system radius 98.31153 > 97.85088
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 94.42353
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Iro system radius 95.82014 > 95.25237
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 94.38705
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Gens system radius 95.44308 > 94.83284
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 89.53647
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Turba system radius 82.69313 > 82.11205
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 20.70856
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Dumkirinur system radius 60.44927 > 60.27564
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 14.79584
+[Warning:       GS2]  705:PatchOnUnspecified_Debug|Import|DFHive orbit radius is larger than Lirsautton system radius 99.8713 > 99.50845
+[Warning:       GS2]  707:PatchOnUnspecified_Debug|Import|New Orbit Radius = 81.66139
+[Info   :DSP Mod Save] Post Load!
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=1347 (每 5 秒打一次，确认 Mod 在运行)
+[Warning:       GS2]  105:PatchOnGameLoader|FixedUpdate|FRAME 8.5
+[Info   :DSP Common API] Checking missing machines!
+[Info   :PlanetFinder] loading vein data completed
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=1603 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 4 次调用 keyId=1 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=2, stationCursor=2
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=1805，开始遍历站点...
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] 无法获取星球工厂 planetId=0，无法识别战场分析基站。
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 1 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 5 次调用 keyId=1 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=2, stationCursor=2
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=1805，开始遍历站点...
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 1 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=1759 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 已为战场分析基站创建 StationComponent: entityId=91, stationId=2, storage.Length=6
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RematchLocalPairs 第 1 次调用 stationId=2 stationCursor=3
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] 开始遍历需求站：stationCursor=3, stationPool.Length=16
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] stationId=1 storage 为空或长度为 0
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] stationId=2 没有本地需求
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=1921 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=2092 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 6 次调用 keyId=1 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=2, stationCursor=3
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=1805，开始遍历站点...
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 2 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 7 次调用 keyId=1 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=2, stationCursor=3
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=1805，开始遍历站点...
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 2 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=2262 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 8 次调用 keyId=1 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=2, stationCursor=3
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=1805，开始遍历站点...
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 2 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] === RefreshDispenserTraffic 第 9 次调用 keyId=1 ===
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: dispenserCursor=2, stationCursor=3
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: planetId=1805，开始遍历站点...
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Warning:战场分析基站配送支持] [战场分析基站配送支持] GetFactoryForPlanet: GameMain.data 为 null
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] RefreshDispenser: 遍历了 2 个站点，找到 0 个战场分析基站，添加了 0 个配对
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=2435 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=2604 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=2777 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=2974 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=3154 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=3312 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=3470 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=3638 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=3802 (每 5 秒打一次，确认 Mod 在运行)
+[Info   :战场分析基站配送支持] [战场分析基站配送支持] tick 存活 frame=3970 (每 5 秒打一次，确认 Mod 在运行)
+[Warning:       GS2]   12:PatchOnGameDesc|Export|^^^Export^^^
+[Warning:       GS2]   14:PatchOnPlanetModelingManager|PlanetScanThreadMain|Loop end. ThreadFlag: Ended
+[Warning:       GS2]   14:PatchOnPlanetModelingManager|PlanetComputeThreadMain|Loop end. ThreadFlag: Ended
