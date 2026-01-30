@@ -173,14 +173,15 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     
                     // 【诊断】记录派遣检查状态（前20次或有配对时）
                     // ⚠️ 注意：我们的虚拟配送器配对使用正数ID，不计入 playerPairCount，而是在 pairCount 中
-                    if (__instance.pairCount > 0)
-                    {
-                        // 每次检查都记录（前20次）
-                        if (_checkCounters[dispenserId] <= 20)
-                        {
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔍 派遣检查 #{_checkCounters[dispenserId]}: dispenser[{__instance.id}] idle={__instance.idleCourierCount}, work={__instance.workCourierCount}, pairCount={__instance.pairCount} (playerPairCount={__instance.playerPairCount})");
-                        }
-                    }
+                    // 已禁用此日志，功能正常
+                    // if (__instance.pairCount > 0)
+                    // {
+                    //     // 每次检查都记录（前20次）
+                    //     if (_checkCounters[dispenserId] <= 20)
+                    //     {
+                    //         Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔍 派遣检查 #{_checkCounters[dispenserId]}: dispenser[{__instance.id}] idle={__instance.idleCourierCount}, work={__instance.workCourierCount}, pairCount={__instance.pairCount} (playerPairCount={__instance.playerPairCount})");
+                    //     }
+                    // }
                     
                     // 只在有空闲 courier 时派出
                     // ⚠️ 检查 pairCount 而不是 playerPairCount，因为虚拟配送器配对使用正数ID
@@ -195,10 +196,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             var pair = __instance.pairs[i];
                             
                             // 【诊断】输出每个配对（前20次检查）
-                            if (_checkCounters[dispenserId] <= 20)
-                            {
-                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}]   检查 pair[{i}]: supplyId={pair.supplyId}, demandId={pair.demandId}, isVirtual={VirtualDispenserManager.IsVirtualDispenser(pair.supplyId)}");
-                            }
+                            // 已禁用此日志，功能正常
+                            // if (_checkCounters[dispenserId] <= 20)
+                            // {
+                            //     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}]   检查 pair[{i}]: supplyId={pair.supplyId}, demandId={pair.demandId}, isVirtual={VirtualDispenserManager.IsVirtualDispenser(pair.supplyId)}");
+                            // }
                             
                             // ✅ 关键检查：
                             // 1. supplyId 是虚拟配送器（供应方）
@@ -230,10 +232,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             // 只派出1个 courier
                             DispatchOneCourierToBattleBase(__instance, factory, entityPool, courierCarries, debugLog);
                         }
-                        else if (_checkCounters[dispenserId] <= 20)
-                        {
-                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 没有找到虚拟配送器配对（检查了{__instance.pairCount}个配对）");
-                        }
+                        // 已禁用此日志，功能正常
+                        // else if (_checkCounters[dispenserId] <= 20)
+                        // {
+                        //     Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 没有找到虚拟配送器配对（检查了{__instance.pairCount}个配对）");
+                        // }
                     }
                     else if (__instance.pairCount > 0 && _checkCounters[dispenserId] <= 20)
                     {

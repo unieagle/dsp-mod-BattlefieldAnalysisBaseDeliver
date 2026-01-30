@@ -117,52 +117,37 @@ namespace BattlefieldAnalysisBaseDeliver
                 Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 BattleBaseComponent.InternalUpdate 方法！");
             }
 
-            // Patch 8: UIControlPanelWindow.TakeObjectEntryFromPool - 跳过虚拟配送器
-            var takeObjectEntryMethod = AccessTools.Method(typeof(UIControlPanelWindow), "TakeObjectEntryFromPool");
-            if (takeObjectEntryMethod != null)
-            {
-                harmony.Patch(
-                    original: takeObjectEntryMethod,
-                    prefix: new HarmonyMethod(typeof(Patches.UIControlPanelWindow_TakeObjectEntryFromPool_Patch), "Prefix")
-                );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelWindow.TakeObjectEntryFromPool 应用补丁（跳过虚拟配送器）。");
-            }
-            else
-            {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 UIControlPanelWindow.TakeObjectEntryFromPool 方法！");
-            }
+        // Patch 8: UIControlPanelWindow.DetermineFilterResults - 完全隐藏虚拟配送器（方案A）
+        var determineFilterResultsMethod = AccessTools.Method(typeof(UIControlPanelWindow), "DetermineFilterResults");
+        if (determineFilterResultsMethod != null)
+        {
+            harmony.Patch(
+                original: determineFilterResultsMethod,
+                postfix: new HarmonyMethod(typeof(Patches.UIControlPanelWindow_DetermineFilterResults_Patch), "Postfix")
+            );
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelWindow.DetermineFilterResults 应用补丁（方案A：完全隐藏虚拟配送器）。");
+        }
+        else
+        {
+            Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 UIControlPanelWindow.DetermineFilterResults 方法！");
+        }
 
-            // Patch 9: UIControlPanelWindow.DetermineEntryVisible - 过滤虚拟配送器
-            var determineEntryVisibleMethod = AccessTools.Method(typeof(UIControlPanelWindow), "DetermineEntryVisible");
-            if (determineEntryVisibleMethod != null)
-            {
-                harmony.Patch(
-                    original: determineEntryVisibleMethod,
-                    prefix: new HarmonyMethod(typeof(Patches.UIControlPanelWindow_DetermineEntryVisible_Patch), "Prefix")
-                );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelWindow.DetermineEntryVisible 应用补丁（过滤虚拟配送器）。");
-            }
-            else
-            {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 UIControlPanelWindow.DetermineEntryVisible 方法！");
-            }
+        // Patch 9: UIControlPanelDispenserEntry.OnSetTarget - 双重保险：在 UI 层拦截虚拟配送器
+        var onSetTargetMethod = AccessTools.Method(typeof(UIControlPanelDispenserEntry), "OnSetTarget");
+        if (onSetTargetMethod != null)
+        {
+            harmony.Patch(
+                original: onSetTargetMethod,
+                prefix: new HarmonyMethod(typeof(Patches.UIControlPanelDispenserEntry_OnSetTarget_Safety_Patch), "Prefix")
+            );
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelDispenserEntry.OnSetTarget 应用补丁（双重保险：拦截虚拟配送器）。");
+        }
+        else
+        {
+            Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 UIControlPanelDispenserEntry.OnSetTarget 方法！");
+        }
 
-            // Patch 10: UIControlPanelDispenserEntry.OnSetTarget - Finalizer 捕获异常
-            var onSetTargetMethod = AccessTools.Method(typeof(UIControlPanelDispenserEntry), "OnSetTarget");
-            if (onSetTargetMethod != null)
-            {
-                harmony.Patch(
-                    original: onSetTargetMethod,
-                    finalizer: new HarmonyMethod(typeof(Patches.UIControlPanelDispenserEntry_OnSetTarget_Patch), "Finalizer")
-                );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelDispenserEntry.OnSetTarget 应用 Finalizer 补丁（捕获异常）。");
-            }
-            else
-            {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 UIControlPanelDispenserEntry.OnSetTarget 方法！");
-            }
-
-            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 加载完成！使用虚拟配送器方案。");
+        Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 加载完成！使用虚拟配送器方案（双重保险：数据源过滤 + UI 层拦截）。");
         }
     }
 }

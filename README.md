@@ -29,29 +29,28 @@
 
 **不修复原因**：修复复杂，Harmony Patch无法正确应用，影响范围有限
 
-#### 2. 虚拟配送器在监控面板中显示
+#### 2. 监控面板 UI 错误
 
-✅ **已完美修复**：
-- 使用双重 UI Patch 拦截机制
-- 虚拟配送器**完全不显示**在监控面板中 ✅
-- **没有任何报错**（包括滚动时） ✅
-- 游戏可以正常继续运行 ✅
+✅ **已修复**（v1.1.0）：
 
-**修复方案**：
-1. **`TakeObjectEntryFromPool` Prefix Patch**：
-   - 在 UI 创建配送器条目时拦截
-   - 检测到虚拟配送器时直接跳过
-   
-2. **`DetermineEntryVisible` Prefix Patch**：
-   - 在 UI 确定可见条目时过滤
-   - 从列表中移除虚拟配送器
+**问题根源**：
+- 虚拟配送器的 `entityId` 指向战场基站实体
+- 战场基站实体的 `dispenserId=0`（不是配送器）
+- UI 访问 `dispenserPool[0]` 时失败（`NullReferenceException`）
+
+**修复方案**：UI 安全检查（Prefix）
+- 在 `UIControlPanelDispenserEntry.OnSetTarget` 中检查 `entity.dispenserId`
+- 如果为 0（虚拟配送器），跳过执行，避免崩溃
+- 虚拟配送器可能显示在面板中，但点击无反应（安全无害）
 
 **效果**：
-- ✅ 打开监控面板正常
-- ✅ 滚动列表完全正常
-- ✅ 只显示真实配送器
-- ✅ 没有任何 NullReferenceException
+- ✅ 打开监控面板**完全正常** 
+- ✅ 滚动到任意位置**无崩溃**
+- ✅ 所有真实配送器可以正常显示和选择
+- ✅ **没有任何 NullReferenceException**
 - ✅ 所有配送功能正常
+
+详见：`UI错误最终修复方案.md`
 
 ---
 
@@ -418,6 +417,14 @@ BattlefieldAnalysisBaseDeliver/
 
 ## 更新日志
 
+### v1.1.0 (2026-01-30)
+- ✅ **彻底修复监控面板 UI 错误**
+  - 使用 UI 安全检查（Prefix）策略
+  - 在 `OnSetTarget` 中检查并跳过虚拟配送器
+  - 解决 UI 列表不同步问题，保证稳定性
+- ✅ 改进虚拟配送器架构（简化代码）
+- ✅ 完善存档兼容性
+
 ### v1.0.0 (2026-01-28)
 - ✅ 实现基本功能：配送器从战场分析基站取货
 - ✅ 完整的无人机飞行动画
@@ -425,3 +432,4 @@ BattlefieldAnalysisBaseDeliver/
 - ✅ 自动派出无人机（每秒1个）
 - ✅ 修复游戏报错（数组越界）
 - ✅ 定期刷新配对（每5秒）
+- ✅ 虚拟配送器方案（Solution C）

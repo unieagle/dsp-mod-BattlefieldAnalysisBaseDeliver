@@ -166,16 +166,16 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: dispenserPool 已满，无法创建更多虚拟配送器");
                         break;
                     }
-
+                    
                     // 创建虚拟配送器
                     var virtualDispenser = new DispenserComponent();
                     int virtualDispenserId = dispenserCursor++;
 
-                    // 初始化虚拟配送器的必要字段（entityId 已经在上面获取了）
+                    // 初始化虚拟配送器的必要字段
 
                     // 【关键】完整初始化所有字段，模拟游戏的 Init 方法
                     virtualDispenser.id = virtualDispenserId;
-                    virtualDispenser.entityId = entityId;
+                    virtualDispenser.entityId = entityId;  // 使用战场基站的 entityId（UI 会通过 UI 过滤补丁隐藏）
                     virtualDispenser.pcId = 0;  // 虚拟配送器没有产线连接
                     virtualDispenser.storageId = 0;  // 虚拟配送器没有存储
                     virtualDispenser.gene = virtualDispenserId % 3;  // 基因（用于动画偏移）
