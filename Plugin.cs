@@ -19,8 +19,8 @@ namespace BattlefieldAnalysisBaseDeliver
             EnableDebugLog = Config.Bind(
                 "General",
                 "EnableDebugLog",
-                true,
-                "为 true 时在日志中输出诊断信息，用于排查功能不生效的原因。默认 true。");
+                false,
+                "为 true 时在日志中输出详细的调试信息，用于排查问题。正常使用时建议设置为 false。");
 
             var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 

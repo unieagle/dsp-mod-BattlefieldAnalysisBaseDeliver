@@ -17,9 +17,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         static readonly HashSet<int> LoggedNullFactoryPlanets = new HashSet<int>();
         
         /// <summary>
-        /// 调试日志开关：前 N 次操作打印详细日志
+        /// 调试日志开关：由配置文件控制
         /// </summary>
-        public static bool DebugLog() => true; // 始终开启详细日志用于诊断
+        public static bool DebugLog() => Plugin.EnableDebugLog?.Value ?? false;
 
         public static bool IsBattlefieldAnalysisBase(StationComponent station, out int entityProtoId)
         {
