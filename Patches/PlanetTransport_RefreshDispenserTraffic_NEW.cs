@@ -204,7 +204,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         var pcIdField = battleBase.GetType().GetField("pcId");
                         int entityId = entityIdField != null ? (int)entityIdField.GetValue(battleBase)! : 0;
                         int pcId = pcIdField != null ? (int)pcIdField.GetValue(battleBase)! : 0;
-                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}]: entityId={entityId}, pcId={pcId}");
+                        if (debugLog && verboseLog)
+                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}]: entityId={entityId}, pcId={pcId}");
                     }
 
                     // 📊 统计这个基站有多少物品（按物品ID去重）
@@ -234,9 +235,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     if (debugLog && verboseLog)
                     {
                         if (uniqueItemIds.Count == 0)
+                        {
                             Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}] 中没有物品");
+                        }
                         else
+                        {
                             Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}] 共有 {uniqueItemIds.Count} 种物品，占据 {gridsInThisBase} 个格子");
+                        }
                     }
 
                     // 遍历战场分析基站的物品格子
@@ -253,9 +258,6 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         // ✅ 改进：只要格子有物品ID（即使count=0），就建立配对
                         // 这样即使暂时没货，配对也会保持，有货就立即派遣
                         if (itemId <= 0) continue;
-
-                        // 📊 这个格子有物品
-                        bool foundMatch = false;
 
                         // 检查是否有配送器需要它
                         for (int dispenserId = 1; dispenserId < dispenserCursor && dispenserId < dispenserPool.Length; dispenserId++)
@@ -283,9 +285,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             // ✅ 检查筛选器是否匹配
                             if (filter != itemId) continue; // 配送器不需要这个物品
 
-                            // 找到匹配！
-                            foundMatch = true;
-                            
+                            // 找到匹配！建立配对
                             // 【新方案】使用虚拟配送器ID（正数）
                             // 获取战场分析基站对应的虚拟配送器ID
                             if (!VirtualDispenserManager.TryGetVirtualDispenserId(battleBaseId, out int virtualDispenserId))
@@ -382,12 +382,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             }
                         }
                         
-                        // 📊 如果这个物品没有找到匹配的配送器，输出诊断信息
-                        if (!foundMatch && debugLog && verboseLog)
-                        {
-                            string itemName = BattlefieldBaseHelper.GetItemName(itemId);
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊   battleBase[{battleBaseId}].grids[{gridIdx}] 的物品 {itemId} ({itemName}) 没有找到匹配的配送器");
-                        }
+                        // 📊 如果这个物品没有找到匹配的配送器，输出诊断信息（已限制在 debugLog && verboseLog）
                     }
                 }
 

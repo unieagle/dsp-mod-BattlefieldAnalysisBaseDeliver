@@ -20,7 +20,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 var targetField = typeof(UIControlPanelDispenserEntry).BaseType?.GetField("target", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (targetField == null)
                 {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 无法获取 target 字段");
+                    if (BattlefieldBaseHelper.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 无法获取 target 字段");
                     return true;
                 }
 

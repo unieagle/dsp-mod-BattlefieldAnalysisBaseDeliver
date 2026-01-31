@@ -90,14 +90,16 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 Type? gameMain = typeof(StationComponent).Assembly.GetType("GameMain");
                 if (gameMain == null)
                 {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: GameMain 类型未找到");
+                    if (DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: GameMain 类型未找到");
                     return null;
                 }
 
                 object? data = gameMain.GetProperty("data", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
                 if (data == null)
                 {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: GameMain.data 为 null");
+                    if (DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: GameMain.data 为 null");
                     return null;
                 }
 
@@ -139,7 +141,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     object? factories = factoriesProp.GetValue(data);
                     if (factories == null)
                     {
-                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: data.factories 为 null");
+                        if (DebugLog())
+                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: data.factories 为 null");
                         return null;
                     }
                     
@@ -160,7 +163,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         }
                         else
                         {
-                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: planetId={planetId} 超出数组范围 [0, {arr.Length})");
+                            if (DebugLog())
+                                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: planetId={planetId} 超出数组范围 [0, {arr.Length})");
                         }
                     }
                     else
@@ -177,7 +181,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     }
                 }
 
-                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: 所有方法都失败，无法获取 planetId={planetId} 的 factory");
+                if (DebugLog())
+                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] GetFactoryForPlanet: 所有方法都失败，无法获取 planetId={planetId} 的 factory");
                 return null;
             }
             catch (Exception ex)
@@ -372,6 +377,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// </summary>
         public static void DiagnoseBattleBaseStorage(object factory, int entityId, StationComponent station)
         {
+            if (!DebugLog()) return;  // 只在调试模式下执行
+            
             try
             {
                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊 诊断 entityId={entityId} 的存储内容：");
@@ -542,6 +549,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// </summary>
         public static void DiagnoseDispenserDemands(Array dispenserPool, int dispenserCursor)
         {
+            if (!DebugLog()) return;  // 只在调试模式下执行
+            
             try
             {
                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊 Dispenser 需求诊断：");
@@ -612,6 +621,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// </summary>
         public static void DiagnoseStationInfo(object factory, StationComponent station)
         {
+            if (!DebugLog()) return;  // 只在调试模式下执行
+            
             try
             {
                 var entityPoolProp = factory.GetType().GetProperty("entityPool");
@@ -647,6 +658,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// </summary>
         public static void DiagnoseBattleBaseStorageByBattleBaseId(object factory, int battleBaseId)
         {
+            if (!DebugLog()) return;  // 只在调试模式下执行
+            
             try
             {
                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📊 Import 时诊断 battleBaseId={battleBaseId} 的存储：");

@@ -33,7 +33,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 bool debugLog = BattlefieldBaseHelper.DebugLog() && _logThrottle <= 100;
                 
                 // 【诊断】每300帧（5秒）输出配送器状态
-                if (_logThrottle % 300 == 0 && __instance.pairCount > 0)
+                if (debugLog && _logThrottle % 300 == 0 && __instance.pairCount > 0)
                 {
                     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🔍 配送器[{__instance.id}] 状态: idle={__instance.idleCourierCount}, work={__instance.workCourierCount}, pairCount={__instance.pairCount} (playerPairCount={__instance.playerPairCount})");
                     
@@ -213,7 +213,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                                 virtualPairIndex = i;
                                 
                                 // 【诊断】找到虚拟配送器配对（前20次检查或每5秒）
-                                if (_checkCounters[dispenserId] <= 20 || _checkCounters[dispenserId] % 5 == 0)
+                                if (debugLog && (_checkCounters[dispenserId] <= 20 || _checkCounters[dispenserId] % 5 == 0))
                                 {
                                     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 发现虚拟配送器配对! dispenser[{__instance.id}] pair[{i}]: supplyId={pair.supplyId}");
                                 }
@@ -224,7 +224,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         if (hasVirtualDispenserPair)
                         {
                             // 【关键诊断】输出派遣信息（前20次检查或每5秒）
-                            if (_checkCounters[dispenserId] <= 20 || _checkCounters[dispenserId] % 5 == 0)
+                            if (debugLog && (_checkCounters[dispenserId] <= 20 || _checkCounters[dispenserId] % 5 == 0))
                             {
                                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 准备派出无人机! dispenser[{__instance.id}] virtualPair[{virtualPairIndex}] idleCouriers={__instance.idleCourierCount}");
                             }
@@ -238,7 +238,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         //     Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 没有找到虚拟配送器配对（检查了{__instance.pairCount}个配对）");
                         // }
                     }
-                    else if (__instance.pairCount > 0 && _checkCounters[dispenserId] <= 20)
+                    else if (debugLog && __instance.pairCount > 0 && _checkCounters[dispenserId] <= 20)
                     {
                         // 【诊断】为什么不派遣？
                         Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 不满足派遣条件: idle={__instance.idleCourierCount}, pairs={__instance.pairs != null}, pairCount={__instance.pairCount}");
@@ -378,24 +378,24 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         // 检查基站是否有货
                         if (!CheckBattleBaseHasItem(factory, battleBaseId, gridIdx, dispenser.filter, debugLog))
                         {
-                            if (_logThrottle % 600 == 0)  // 每10秒记录一次
+                            if (debugLog && _logThrottle % 600 == 0)  // 每10秒记录一次
                                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 战场基站[{battleBaseId}] gridIdx={gridIdx} 暂无货物");
                             continue;
                         }
 
-                        // 【关键】始终输出派遣日志
-                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚁 开始派遣! 配送器[{dispenser.id}] → 虚拟配送器[{virtualDispenserId}](战场基站[{battleBaseId}]), filter={dispenser.filter}");
-                        
                         // 派出空载无人机（飞向虚拟配送器的位置，即战场分析基站）
                         bool success = DispatchEmptyCourier(factory, dispenser, entityPool, battleBaseId, gridIdx, courierCarries, debugLog);
                         
-                        if (success)
+                        if (debugLog)
                         {
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 派遣成功! 空载courier飞向战场基站[{battleBaseId}]，剩余空闲={dispenser.idleCourierCount}");
-                        }
-                        else
-                        {
-                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ❌ 派遣失败!");
+                            if (success)
+                            {
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 派遣成功! 配送器[{dispenser.id}] → 虚拟配送器[{virtualDispenserId}](战场基站[{battleBaseId}])，空载courier飞向战场基站，剩余空闲={dispenser.idleCourierCount}");
+                            }
+                            else
+                            {
+                                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ❌ 派遣失败! 配送器[{dispenser.id}] → 战场基站[{battleBaseId}]");
+                            }
                         }
                         
                         // 只派出一个就返回

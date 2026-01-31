@@ -51,7 +51,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         {
             if (factory?.transport == null)
             {
-                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: factory 或 transport 为 null");
+                if (BattlefieldBaseHelper.DebugLog())
+                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: factory 或 transport 为 null");
                 return;
             }
 
@@ -63,7 +64,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 if (dispenserPoolField == null || dispenserCursorField == null)
                 {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: dispenserPool/Cursor 字段未找到");
+                    if (BattlefieldBaseHelper.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: dispenserPool/Cursor 字段未找到");
                     return;
                 }
 
@@ -72,7 +74,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 if (dispenserPool == null || dispenserCursorObj == null)
                 {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: dispenserPool 或 dispenserCursor 为 null");
+                    if (BattlefieldBaseHelper.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: dispenserPool 或 dispenserCursor 为 null");
                     return;
                 }
 
@@ -163,7 +166,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     // 检查 dispenserPool 是否还有空间
                     if (dispenserCursor >= dispenserPool.Length)
                     {
-                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: dispenserPool 已满，无法创建更多虚拟配送器");
+                        if (BattlefieldBaseHelper.DebugLog())
+                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CreateVirtualDispensers: dispenserPool 已满，无法创建更多虚拟配送器");
                         break;
                     }
                     
@@ -219,7 +223,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     }
                     catch (Exception ex)
                     {
-                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 初始化 deliveryPackage 失败: {ex.Message}");
+                        if (BattlefieldBaseHelper.DebugLog())
+                            Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 初始化 deliveryPackage 失败: {ex.Message}");
                         // 如果失败，设置为 null（可能会导致 UI 错误，但不会崩溃）
                         virtualDispenser.deliveryPackage = null!;
                     }
@@ -261,7 +266,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 // 更新 dispenserCursor
                 dispenserCursorField.SetValue(factory.transport, dispenserCursor);
 
-                if (recoveredCount > 0 || createdCount > 0)
+                if (BattlefieldBaseHelper.DebugLog() && (recoveredCount > 0 || createdCount > 0))
                 {
                     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 虚拟配送器：从存档恢复 {recoveredCount} 个，新创建 {createdCount} 个");
                 }
@@ -308,7 +313,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             }
             catch (Exception ex)
             {
-                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CheckBattleBaseExists 异常: {ex.Message}");
+                if (BattlefieldBaseHelper.DebugLog())
+                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] CheckBattleBaseExists 异常: {ex.Message}");
                 return false;
             }
         }

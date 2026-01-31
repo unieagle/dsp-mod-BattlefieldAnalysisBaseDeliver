@@ -20,20 +20,29 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 bool isVirtual = VirtualDispenserManager.IsVirtualDispenser(__instance.id);
                 
-                // 总是输出日志以便诊断（已移除 _callCount <= 20 限制）
-                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] OnRematchPairs 调用 #{_callCount}: dispenser.id={__instance.id}, isVirtual={isVirtual}");
+                // 调试日志
+                if (BattlefieldBaseHelper.DebugLog() && _callCount <= 50)
+                {
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] OnRematchPairs 调用 #{_callCount}: dispenser.id={__instance.id}, isVirtual={isVirtual}");
+                }
                 
                 // 检查是否是虚拟配送器
                 if (isVirtual)
                 {
-                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⏭️ 跳过虚拟配送器[{__instance.id}]的 OnRematchPairs");
+                    if (BattlefieldBaseHelper.DebugLog())
+                    {
+                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ⏭️ 跳过虚拟配送器[{__instance.id}]的 OnRematchPairs");
+                    }
                     return false;  // 跳过原方法
                 }
                 
                 // 额外的安全检查：如果 deliveryPackage 是 null，也跳过
                 if (__instance.deliveryPackage == null)
                 {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 配送器[{__instance.id}]的 deliveryPackage 为 null，跳过 OnRematchPairs");
+                    if (BattlefieldBaseHelper.DebugLog())
+                    {
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 配送器[{__instance.id}]的 deliveryPackage 为 null，跳过 OnRematchPairs");
+                    }
                     return false;
                 }
 

@@ -130,6 +130,12 @@ BattlefieldAnalysisBaseDeliver/
 
 ---
 
+### Build
+
+```
+dotnet build -c Release
+```
+
 ## 更新日志
 
 ### v1.2.0 (2026-01-31)
