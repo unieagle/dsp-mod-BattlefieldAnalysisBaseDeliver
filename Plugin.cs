@@ -11,6 +11,11 @@ namespace BattlefieldAnalysisBaseDeliver
         public static ManualLogSource? Log;
         public static ConfigEntry<bool> EnableDebugLog = null!;
 
+        /// <summary>
+        /// 调试日志开关：由配置文件控制
+        /// </summary>
+        public static bool DebugLog() => EnableDebugLog?.Value ?? false;
+
         private void Awake()
         {
             Log = Logger;
@@ -24,9 +29,9 @@ namespace BattlefieldAnalysisBaseDeliver
 
             var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
-            // ✅ 方案C：为战场分析基站创建虚拟配送器，使用正数ID
+            // ========== 基站直接派遣方案 ==========
             
-            // Patch 1: PlanetFactory初始化 - 创建虚拟配送器
+            // Patch 1: PlanetFactory 生命周期管理
             var planetFactoryInitMethod = AccessTools.Method(typeof(PlanetFactory), "Init");
             if (planetFactoryInitMethod != null)
             {
@@ -34,7 +39,7 @@ namespace BattlefieldAnalysisBaseDeliver
                     original: planetFactoryInitMethod,
                     postfix: new HarmonyMethod(typeof(Patches.PlanetFactory_Init_Patch), "Postfix")
                 );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 PlanetFactory.Init 应用补丁（创建虚拟配送器）。");
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ PlanetFactory.Init 补丁已应用");
             }
 
             var planetFactoryImportMethod = AccessTools.Method(typeof(PlanetFactory), "Import");
@@ -44,7 +49,7 @@ namespace BattlefieldAnalysisBaseDeliver
                     original: planetFactoryImportMethod,
                     postfix: new HarmonyMethod(typeof(Patches.PlanetFactory_Import_Patch), "Postfix")
                 );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 PlanetFactory.Import 应用补丁（存档加载后创建虚拟配送器）。");
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ PlanetFactory.Import 补丁已应用（清理旧虚拟配送器）");
             }
 
             var planetFactoryFreeMethod = AccessTools.Method(typeof(PlanetFactory), "Free");
@@ -54,55 +59,10 @@ namespace BattlefieldAnalysisBaseDeliver
                     original: planetFactoryFreeMethod,
                     prefix: new HarmonyMethod(typeof(Patches.PlanetFactory_Free_Patch), "Prefix")
                 );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 PlanetFactory.Free 应用补丁（清理虚拟配送器映射）。");
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ PlanetFactory.Free 补丁已应用");
             }
             
-            // Patch 2: PlanetTransport.RefreshDispenserTraffic - 添加配对（使用虚拟配送器ID）
-            var refreshDispenserMethod = AccessTools.Method(typeof(PlanetTransport), nameof(PlanetTransport.RefreshDispenserTraffic));
-            if (refreshDispenserMethod != null)
-            {
-                harmony.Patch(
-                    original: refreshDispenserMethod,
-                    postfix: new HarmonyMethod(typeof(Patches.PlanetTransport_RefreshDispenserTraffic_NEW_Patch), "Postfix")
-                );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 PlanetTransport.RefreshDispenserTraffic 应用补丁（添加配对）。");
-            }
-            else
-            {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 PlanetTransport.RefreshDispenserTraffic 方法！");
-            }
-            
-            // Patch 5: DispenserComponent.InternalTick - 方案C：Prefix 派出空载无人机
-            var internalTickMethod = AccessTools.Method(typeof(DispenserComponent), "InternalTick");
-            if (internalTickMethod != null)
-            {
-                harmony.Patch(
-                    original: internalTickMethod,
-                    prefix: new HarmonyMethod(typeof(Patches.DispenserComponent_InternalTick_Patch), "Prefix")
-                );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 DispenserComponent.InternalTick 应用补丁（Prefix：派出空载无人机）。");
-            }
-            else
-            {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 DispenserComponent.InternalTick 方法！");
-            }
-
-            // Patch 6: DispenserComponent.OnRematchPairs - 跳过虚拟配送器
-            var onRematchPairsMethod = AccessTools.Method(typeof(DispenserComponent), "OnRematchPairs");
-            if (onRematchPairsMethod != null)
-            {
-                harmony.Patch(
-                    original: onRematchPairsMethod,
-                    prefix: new HarmonyMethod(typeof(Patches.DispenserComponent_OnRematchPairs_Patch), "Prefix")
-                );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 DispenserComponent.OnRematchPairs 应用补丁（跳过虚拟配送器）。");
-            }
-            else
-            {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 DispenserComponent.OnRematchPairs 方法！");
-            }
-
-            // Patch 7: BattleBaseComponent.InternalUpdate - 监控基站物品变化（包括手动放入）
+            // Patch 2: BattleBaseComponent.InternalUpdate - 核心：派遣、飞行、送货
             var internalUpdateMethod = AccessTools.Method(typeof(BattleBaseComponent), "InternalUpdate");
             if (internalUpdateMethod != null)
             {
@@ -110,44 +70,64 @@ namespace BattlefieldAnalysisBaseDeliver
                     original: internalUpdateMethod,
                     postfix: new HarmonyMethod(typeof(Patches.BattleBaseComponent_InternalUpdate_Patch), "Postfix")
                 );
-                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 BattleBaseComponent.InternalUpdate 应用补丁（监控物品变化，包括手动放入）。");
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ BattleBaseComponent.InternalUpdate 补丁已应用（核心逻辑）");
             }
             else
             {
-                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 BattleBaseComponent.InternalUpdate 方法！");
+                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠ 未找到 BattleBaseComponent.InternalUpdate 方法！");
             }
 
-        // Patch 8: UIControlPanelWindow.DetermineFilterResults - 完全隐藏虚拟配送器（方案A）
-        var determineFilterResultsMethod = AccessTools.Method(typeof(UIControlPanelWindow), "DetermineFilterResults");
-        if (determineFilterResultsMethod != null)
-        {
-            harmony.Patch(
-                original: determineFilterResultsMethod,
-                postfix: new HarmonyMethod(typeof(Patches.UIControlPanelWindow_DetermineFilterResults_Patch), "Postfix")
-            );
-            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelWindow.DetermineFilterResults 应用补丁（方案A：完全隐藏虚拟配送器）。");
-        }
-        else
-        {
-            Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 UIControlPanelWindow.DetermineFilterResults 方法！");
-        }
+            // Patch 3: LogisticCourierRenderer.Update - 渲染基站派遣的无人机
+            var rendererUpdateMethod = AccessTools.Method(typeof(LogisticCourierRenderer), "Update");
+            if (rendererUpdateMethod != null)
+            {
+                harmony.Patch(
+                    original: rendererUpdateMethod,
+                    postfix: new HarmonyMethod(typeof(Patches.LogisticCourierRenderer_Update_Patch), "Postfix")
+                );
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ LogisticCourierRenderer.Update 补丁已应用（无人机可见）");
+            }
+            else
+            {
+                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠ 未找到 LogisticCourierRenderer.Update 方法！");
+            }
 
-        // Patch 9: UIControlPanelDispenserEntry.OnSetTarget - 双重保险：在 UI 层拦截虚拟配送器
-        var onSetTargetMethod = AccessTools.Method(typeof(UIControlPanelDispenserEntry), "OnSetTarget");
-        if (onSetTargetMethod != null)
-        {
-            harmony.Patch(
-                original: onSetTargetMethod,
-                prefix: new HarmonyMethod(typeof(Patches.UIControlPanelDispenserEntry_OnSetTarget_Safety_Patch), "Prefix")
-            );
-            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 已对 UIControlPanelDispenserEntry.OnSetTarget 应用补丁（双重保险：拦截虚拟配送器）。");
-        }
-        else
-        {
-            Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 未找到 UIControlPanelDispenserEntry.OnSetTarget 方法！");
-        }
+            // Patch 4: GameData.Export - 存档前返还在途物品
+            var gameDataExportMethod = AccessTools.Method(typeof(GameData), "Export");
+            if (gameDataExportMethod != null)
+            {
+                harmony.Patch(
+                    original: gameDataExportMethod,
+                    prefix: new HarmonyMethod(typeof(Patches.GameData_Export_Patch), "Prefix")
+                );
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ GameData.Export 补丁已应用（存档安全）");
+            }
+            else
+            {
+                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠ 未找到 GameData.Export 方法！");
+            }
 
-        Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 加载完成！使用虚拟配送器方案（双重保险：数据源过滤 + UI 层拦截）。");
+            // Patch 5: GameData.Import - 存档加载后清理数据
+            var gameDataImportMethod = AccessTools.Method(typeof(GameData), "Import");
+            if (gameDataImportMethod != null)
+            {
+                harmony.Patch(
+                    original: gameDataImportMethod,
+                    postfix: new HarmonyMethod(typeof(Patches.GameData_Import_Patch), "Postfix")
+                );
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ GameData.Import 补丁已应用（自动重新派遣）");
+            }
+            else
+            {
+                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠ 未找到 GameData.Import 方法！");
+            }
+
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ========================================");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 加载完成！基站直接派遣方案");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 战场基站拥有独立的10个无人机");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 无需虚拟配送器，性能优化");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 💾 存档安全，自动兼容旧方案");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ========================================");
         }
     }
 }
