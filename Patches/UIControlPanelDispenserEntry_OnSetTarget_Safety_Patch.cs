@@ -5,115 +5,72 @@ using System.Reflection;
 namespace BattlefieldAnalysisBaseDeliver.Patches
 {
     /// <summary>
-    /// 双重保险：在 UI 层拦截虚拟配送器，防止 OnSetTarget 访问 dispenserPool[0] 崩溃
+    /// 双重保险：在 UI 层拦截虚拟配送器，防止 OnSetTarget 访问无效配送器导致崩溃
+    /// 注：正常情况下第一层过滤（DetermineFilterResults）已经移除虚拟配送器，
+    /// 此补丁作为防御性编程的额外保护层
     /// </summary>
     [HarmonyPatch(typeof(UIControlPanelDispenserEntry), "OnSetTarget")]
     public static class UIControlPanelDispenserEntry_OnSetTarget_Safety_Patch
     {
-        /// <summary>
-        /// 在 OnSetTarget 之前检查：如果 entity.dispenserId == 0 或是虚拟配送器，跳过原方法
-        /// </summary>
         [HarmonyPrefix]
         static bool Prefix(UIControlPanelDispenserEntry __instance)
         {
             try
             {
-                // 获取 target 字段（基类 UIControlPanelObjectEntry 中的字段）
+                // 获取 target 字段
                 var baseType = typeof(UIControlPanelObjectEntry);
                 var targetField = baseType.GetField("target", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                
-                if (targetField == null)
-                {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] OnSetTarget Safety: 无法获取 target 字段");
-                    return true; // 继续执行原方法
-                }
+                if (targetField == null) return true;
 
                 object? targetObj = targetField.GetValue(__instance);
-                if (targetObj == null)
-                {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] OnSetTarget Safety: target 为 null");
-                    return true;
-                }
+                if (targetObj == null) return true;
 
                 // 获取 target.objId 和 target.astroId
                 var targetType = targetObj.GetType();
                 var objIdField = targetType.GetField("objId");
                 var astroIdField = targetType.GetField("astroId");
-
-                if (objIdField == null || astroIdField == null)
-                {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] OnSetTarget Safety: 无法获取 target 字段");
-                    return true;
-                }
+                if (objIdField == null || astroIdField == null) return true;
 
                 int objId = (int)objIdField.GetValue(targetObj)!;
                 int astroId = (int)astroIdField.GetValue(targetObj)!;
 
                 // 获取 factory
                 var gameData = GameMain.data;
-                if (gameData == null || gameData.galaxy == null)
-                {
-                    return true;
-                }
+                if (gameData == null || gameData.galaxy == null) return true;
 
                 var planet = gameData.galaxy.PlanetById(astroId);
-                if (planet == null || planet.factory == null)
-                {
-                    return true;
-                }
+                if (planet == null || planet.factory == null) return true;
 
                 var factory = planet.factory;
 
                 // 获取 entityPool
                 var factoryType = factory.GetType();
                 var entityPoolField = factoryType.GetField("entityPool", BindingFlags.Public | BindingFlags.Instance);
-                if (entityPoolField == null)
-                {
-                    return true;
-                }
+                if (entityPoolField == null) return true;
 
                 Array? entityPool = entityPoolField.GetValue(factory) as Array;
-                if (entityPool == null || objId <= 0 || objId >= entityPool.Length)
-                {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] OnSetTarget Safety: objId={objId} 越界");
-                    return false; // 阻止原方法执行
-                }
+                if (entityPool == null || objId <= 0 || objId >= entityPool.Length) return false;
 
                 // 获取 entity.dispenserId
                 object? entity = entityPool.GetValue(objId);
-                if (entity == null)
-                {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] OnSetTarget Safety: entity 为 null, objId={objId}");
-                    return false;
-                }
+                if (entity == null) return false;
 
                 var entityType = entity.GetType();
                 var dispenserIdField = entityType.GetField("dispenserId");
-                if (dispenserIdField == null)
-                {
-                    return true;
-                }
+                if (dispenserIdField == null) return true;
 
                 int dispenserId = (int)dispenserIdField.GetValue(entity)!;
 
-                // 检查是否是虚拟配送器或无效配送器
-                bool isVirtual = VirtualDispenserManager.IsVirtualDispenser(dispenserId);
-                bool isInvalid = dispenserId == 0;
+                // 检查是否是虚拟配送器或无效配送器（dispenserId == 0）
+                bool isInvalid = dispenserId == 0 || VirtualDispenserManager.IsVirtualDispenser(dispenserId);
 
-                if (isInvalid || isVirtual)
-                {
-                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 🛡️ OnSetTarget Safety: 拦截虚拟/无效配送器，objId={objId}, dispenserId={dispenserId}, isVirtual={isVirtual}");
-                    
-                    // 阻止原方法执行，避免访问 dispenserPool[0] 导致崩溃
-                    return false;
-                }
-
-                return true; // 允许原方法执行
+                // 阻止访问无效配送器
+                return !isInvalid;
             }
-            catch (Exception ex)
+            catch
             {
-                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] OnSetTarget Safety 异常: {ex.Message}\n{ex.StackTrace}");
-                return true; // 出错时仍然执行原方法，避免更严重的问题
+                // 出错时允许执行原方法（游戏自己会处理错误）
+                return true;
             }
         }
     }
