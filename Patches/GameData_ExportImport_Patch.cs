@@ -52,7 +52,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                                     
                                     if (Plugin.DebugLog())
                                     {
-                                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 返还物品: 基站[{logistics.battleBaseId}] 物品={courier.itemId}x{courier.itemCount}");
+                                        string itemName = GetItemName(courier.itemId);
+                                        Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 返还物品: 基站[{logistics.battleBaseId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
                                     }
                                 }
                             }
@@ -132,6 +133,26 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 return false;
             }
         }
+
+        /// <summary>
+        /// 获取物品名称
+        /// </summary>
+        private static string GetItemName(int itemId)
+        {
+            try
+            {
+                var itemProto = LDB.items.Select(itemId);
+                if (itemProto != null && !string.IsNullOrEmpty(itemProto.name))
+                {
+                    return itemProto.name.Translate();
+                }
+            }
+            catch
+            {
+                // 忽略异常
+            }
+            return $"item_{itemId}";
+        }
     }
 
     /// <summary>
@@ -154,6 +175,26 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] GameData.Import Postfix 异常: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// 获取物品名称
+        /// </summary>
+        private static string GetItemName(int itemId)
+        {
+            try
+            {
+                var itemProto = LDB.items.Select(itemId);
+                if (itemProto != null && !string.IsNullOrEmpty(itemProto.name))
+                {
+                    return itemProto.name.Translate();
+                }
+            }
+            catch
+            {
+                // 忽略异常
+            }
+            return $"item_{itemId}";
         }
     }
 }

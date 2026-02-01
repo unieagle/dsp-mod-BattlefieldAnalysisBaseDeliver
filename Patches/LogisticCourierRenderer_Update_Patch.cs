@@ -42,6 +42,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 // 获取所有基站的物流系统
                 var baseLogistics = BattleBaseLogisticsManager.GetAllForPlanet(planetId);
+                
+                int addedCouriers = 0;
 
                 foreach (var logistics in baseLogistics)
                 {
@@ -53,6 +55,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         // 跳过空闲的无人机
                         if (courier.maxt <= 0f)
                             continue;
+                        
+                        addedCouriers++;
 
                         // 检查数组容量
                         if (couriersArr == null || currentCount >= couriersArr.Length)
@@ -74,6 +78,12 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 // 更新 GPU 缓冲区
                 UpdateBuffer(__instance, currentCount);
+                
+                // 调试日志
+                if (addedCouriers > 0 && Plugin.DebugLog())
+                {
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🎨 渲染无人机: 行星[{planetId}] 基站无人机数={addedCouriers} 总无人机数={currentCount}");
+                }
             }
             catch (Exception ex)
             {

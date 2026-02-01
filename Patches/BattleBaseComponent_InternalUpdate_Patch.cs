@@ -71,14 +71,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         break;
 
                     // 派遣一个无人机
-                    if (DispatchCourier(logistics, __instance, factory, demand, basePosition))
+                    if (DispatchCourier(logistics, __instance, factory, demand, basePosition, currentInventory))
                     {
                         dispatched++;
-                        
-                        if (Plugin.DebugLog())
-                        {
-                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 派遣无人机: 基站[{battleBaseId}] → 配送器[{demand.dispenserId}] 物品={demand.itemId} 紧急度={demand.urgency:F2}");
-                        }
                     }
                 }
 
@@ -96,13 +91,14 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// <summary>
         /// 派遣一个无人机
         /// </summary>
-        private static bool DispatchCourier(BaseLogisticSystem logistics, BattleBaseComponent battleBase, PlanetFactory factory, DispenserDemand demand, Vector3 basePosition)
+        private static bool DispatchCourier(BaseLogisticSystem logistics, BattleBaseComponent battleBase, PlanetFactory factory, DispenserDemand demand, Vector3 basePosition, Dictionary<int, int> currentInventory)
         {
             try
             {
                 // 从基站存储取出物品
                 int itemId = demand.itemId;
-                int maxAmount = 100; // 无人机容量（可以从配置读取）
+                int maxAmount = 50; // 无人机容量（可以从配置读取）
+                int beforeAmount = currentInventory.ContainsKey(itemId) ? currentInventory[itemId] : 0;
                 int actualAmount = 0;
                 int inc = 0;
 
@@ -111,6 +107,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 if (actualAmount <= 0)
                     return false;
+
+                int afterAmount = beforeAmount - actualAmount;
 
                 // 计算路径
                 Vector3 targetPosition = demand.position;
@@ -152,6 +150,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 logistics.idleCount--;
                 logistics.workingCount++;
 
+                // 打印派遣日志
+                if (Plugin.DebugLog())
+                {
+                    string itemName = GetItemName(itemId);
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 派遣无人机: 基站[{battleBase.id}] → 配送器[{demand.dispenserId}] 物品={itemName}(ID:{itemId}) 派遣={actualAmount} 剩余={afterAmount} 紧急度={demand.urgency:F2}");
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -190,18 +195,32 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         courier.t = courier.maxt;
 
                         // 送货到配送器
-                        if (DeliverToDispenser(factory, courier.endId, courier.itemId, courier.itemCount, courier.inc))
+                        bool delivered = DeliverToDispenser(factory, courier.endId, courier.itemId, courier.itemCount, courier.inc);
+                        
+                        if (delivered)
                         {
                             if (Plugin.DebugLog())
                             {
-                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 配送器[{courier.endId}] 物品={courier.itemId}x{courier.itemCount}");
+                                string itemName = GetItemName(courier.itemId);
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 配送器[{courier.endId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
+                            }
+                            
+                            // 清空货物，准备返回
+                            courier.itemId = 0;
+                            courier.itemCount = 0;
+                            courier.inc = 0;
+                        }
+                        else
+                        {
+                            // 送货失败，记录日志（物品保留，返回基站时退还）
+                            if (Plugin.DebugLog())
+                            {
+                                string itemName = GetItemName(courier.itemId);
+                                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 送货失败: 配送器[{courier.endId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}，将返还到基站");
                             }
                         }
-
-                        // 清空货物，准备返回
-                        courier.itemId = 0;
-                        courier.itemCount = 0;
-                        courier.inc = 0;
+                        
+                        // 准备返回
                         courier.direction = -1f;
                     }
                     // 检查是否返回基站（回程）
@@ -209,12 +228,27 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     {
                         courier.t = 0f;
 
+                        // 如果无人机还携带物品，返还到基站
+                        if (courier.itemId > 0 && courier.itemCount > 0)
+                        {
+                            ReturnItemToBase(battleBase, courier.itemId, courier.itemCount, courier.inc);
+                            
+                            if (Plugin.DebugLog())
+                            {
+                                string itemName = GetItemName(courier.itemId);
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 返还物品: 基站[{battleBase.id}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
+                            }
+                        }
+
                         // 回收无人机
                         courier.maxt = 0f; // 标记为空闲
                         courier.begin = Vector3.zero;
                         courier.end = Vector3.zero;
                         courier.endId = 0;
                         courier.direction = 0f;
+                        courier.itemId = 0;
+                        courier.itemCount = 0;
+                        courier.inc = 0;
 
                         logistics.workingCount--;
                         logistics.idleCount++;
@@ -296,46 +330,175 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         {
             try
             {
-                if (factory?.transport == null) return false;
+                if (factory?.transport == null)
+                {
+                    if (Plugin.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: factory.transport 为 null");
+                    return false;
+                }
 
                 var dispenserPoolField = factory.transport.GetType().GetField("dispenserPool",
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                if (dispenserPoolField == null) return false;
+                if (dispenserPoolField == null)
+                {
+                    if (Plugin.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: dispenserPoolField 为 null");
+                    return false;
+                }
 
                 Array? dispenserPool = dispenserPoolField.GetValue(factory.transport) as Array;
                 if (dispenserPool == null || dispenserId <= 0 || dispenserId >= dispenserPool.Length)
+                {
+                    if (Plugin.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: dispenserId={dispenserId} 无效（范围: 1-{dispenserPool?.Length ?? 0}）");
                     return false;
+                }
 
                 object? dispenserObj = dispenserPool.GetValue(dispenserId);
                 DispenserComponent? dispenser = dispenserObj as DispenserComponent;
                 if (dispenser == null || dispenser.id != dispenserId)
+                {
+                    if (Plugin.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: dispenser[{dispenserId}] 为 null 或 id 不匹配");
                     return false;
+                }
 
                 // 获取配送器的底部存储ID
-                if (dispenser.storage?.bottomStorage == null) return false;
+                if (dispenser.storage?.bottomStorage == null)
+                {
+                    if (Plugin.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: dispenser[{dispenserId}].storage.bottomStorage 为 null");
+                    return false;
+                }
 
                 var storageIdField = dispenser.storage.bottomStorage.GetType().GetField("id");
-                if (storageIdField == null) return false;
+                if (storageIdField == null)
+                {
+                    if (Plugin.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: storageIdField 为 null");
+                    return false;
+                }
 
                 int storageId = (int)storageIdField.GetValue(dispenser.storage.bottomStorage)!;
 
                 // 插入到配送器存储
-                int inserted = factory.InsertIntoStorage(storageId, itemId, count, inc, out int _, true);
+                int inserted = factory.InsertIntoStorage(storageId, itemId, count, inc, out int incOut, true);
+                int remaining = count - inserted;
 
-                if (inserted > 0)
+                // 如果有物品未能插入，放到 holdupPackage 中（模拟游戏逻辑）
+                if (remaining > 0)
                 {
-                    // 触发配送器的脉冲信号（视觉反馈）
-                    dispenser.pulseSignal = 2;
-                    return true;
+                    var holdupPackageField = dispenser.GetType().GetField("holdupPackage", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    var holdupItemCountField = dispenser.GetType().GetField("holdupItemCount", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    
+                    if (holdupPackageField != null && holdupItemCountField != null)
+                    {
+                        Array? holdupPackage = holdupPackageField.GetValue(dispenser) as Array;
+                        int holdupItemCount = (int)holdupItemCountField.GetValue(dispenser)!;
+                        
+                        if (holdupPackage != null && holdupItemCount < holdupPackage.Length)
+                        {
+                            // 查找是否已有该物品
+                            bool found = false;
+                            for (int i = 0; i < holdupItemCount; i++)
+                            {
+                                object? item = holdupPackage.GetValue(i);
+                                if (item != null)
+                                {
+                                    var itemIdField = item.GetType().GetField("itemId");
+                                    if (itemIdField != null && (int)itemIdField.GetValue(item)! == itemId)
+                                    {
+                                        // 找到相同物品，增加数量
+                                        var countField = item.GetType().GetField("count");
+                                        var incField = item.GetType().GetField("inc");
+                                        if (countField != null && incField != null)
+                                        {
+                                            int oldCount = (int)countField.GetValue(item)!;
+                                            int oldInc = (int)incField.GetValue(item)!;
+                                            countField.SetValue(item, oldCount + remaining);
+                                            incField.SetValue(item, oldInc + incOut);
+                                            holdupPackage.SetValue(item, i);
+                                            found = true;
+                                            
+                                            if (Plugin.DebugLog())
+                                            {
+                                                string itemName = GetItemName(itemId);
+                                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 送货到缓存区: 配送器[{dispenserId}] 物品={itemName}(ID:{itemId}) 直接插入={inserted} 缓存={remaining}");
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // 如果没找到，添加新物品
+                            if (!found)
+                            {
+                                // 创建 DispenserStore 结构体
+                                var dispenserStoreType = holdupPackage.GetType().GetElementType();
+                                if (dispenserStoreType != null)
+                                {
+                                    object newItem = Activator.CreateInstance(dispenserStoreType)!;
+                                    var itemIdField = newItem.GetType().GetField("itemId");
+                                    var countField = newItem.GetType().GetField("count");
+                                    var incField = newItem.GetType().GetField("inc");
+                                    
+                                    if (itemIdField != null && countField != null && incField != null)
+                                    {
+                                        itemIdField.SetValue(newItem, itemId);
+                                        countField.SetValue(newItem, remaining);
+                                        incField.SetValue(newItem, incOut);
+                                        holdupPackage.SetValue(newItem, holdupItemCount);
+                                        holdupItemCountField.SetValue(dispenser, holdupItemCount + 1);
+                                        
+                                        if (Plugin.DebugLog())
+                                        {
+                                            string itemName = GetItemName(itemId);
+                                            Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 送货到缓存区（新增）: 配送器[{dispenserId}] 物品={itemName}(ID:{itemId}) 直接插入={inserted} 缓存={remaining}");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (Plugin.DebugLog())
+                {
+                    string itemName = GetItemName(itemId);
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功（直接插入）: 配送器[{dispenserId}] 物品={itemName}(ID:{itemId})x{count}");
                 }
 
-                return false;
+                // 触发配送器的脉冲信号（视觉反馈）
+                dispenser.pulseSignal = 2;
+                
+                // 无论如何都返回 true，因为物品已经交给配送器了（直接插入或放到缓存）
+                return true;
             }
             catch (Exception ex)
             {
-                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToDispenser 异常: {ex.Message}");
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToDispenser 异常: {ex.Message}\n{ex.StackTrace}");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// 获取物品名称
+        /// </summary>
+        private static string GetItemName(int itemId)
+        {
+            try
+            {
+                var itemProto = LDB.items.Select(itemId);
+                if (itemProto != null && !string.IsNullOrEmpty(itemProto.name))
+                {
+                    return itemProto.name.Translate();
+                }
+            }
+            catch
+            {
+                // 忽略异常
+            }
+            return $"item_{itemId}";
         }
     }
 }
