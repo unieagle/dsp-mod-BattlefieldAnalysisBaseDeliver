@@ -156,6 +156,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return;
 
                 float courierSpeed = GameMain.history.logisticCourierSpeedModified;
+                courierSpeed *= 2.0f;
                 float deltaT = courierSpeed * 0.016666668f; // 1帧的移动距离
 
                 Vector3 basePos = factory.entityPool[battleBase.entityId].pos;
