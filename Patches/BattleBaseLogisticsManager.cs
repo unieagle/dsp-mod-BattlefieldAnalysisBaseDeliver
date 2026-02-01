@@ -15,8 +15,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public int planetId;
         
         // 无人机数据（与游戏的 CourierData 完全兼容）
-        public CourierData[] couriers = new CourierData[10];
-        public int idleCount = 10;
+        public CourierData[] couriers = new CourierData[20];
+        public int idleCount = 20;
         public int workingCount = 0;
         
         // 库存追踪（用于检测变化）
@@ -41,6 +41,23 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public float urgency;           // 紧急度 0-1（越小越紧急）
         public Vector3 position;        // 位置
         public float distance;          // 距离基站的距离
+    }
+
+    /// <summary>
+    /// 本帧可派遣的上下文：由 Manager 内部完成 cooldown、库存变化、无空闲/无需求等判断后返回
+    /// </summary>
+    public class DispatchContext
+    {
+        public List<DispenserDemand> Demands;
+        public Dictionary<int, int> CurrentInventory;
+        public Vector3 BasePosition;
+
+        public DispatchContext(List<DispenserDemand> demands, Dictionary<int, int> currentInventory, Vector3 basePosition)
+        {
+            Demands = demands;
+            CurrentInventory = currentInventory;
+            BasePosition = basePosition;
+        }
     }
 
     /// <summary>
@@ -250,6 +267,44 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             }
 
             return demands;
+        }
+
+        /// <summary>
+        /// 判断本帧是否应派遣并返回派遣上下文：内部处理 cooldown、库存变化跳过、无空闲/无需求等逻辑。
+        /// 返回 null 表示本帧应跳过（冷却中、无变化且无待发可能、无空闲、无需求）；非 null 表示应执行派遣。
+        /// </summary>
+        public static DispatchContext? TryGetDispatchContext(BaseLogisticSystem logistics, object battleBase, PlanetFactory factory, int entityId)
+        {
+            if (logistics == null || battleBase == null || factory == null) return null;
+
+            // 派遣冷却
+            logistics.cooldownCounter++;
+            if (logistics.cooldownCounter < BaseLogisticSystem.DISPATCH_INTERVAL)
+                return null;
+            logistics.cooldownCounter = 0;
+
+            var currentInventory = GetBaseInventory(battleBase);
+
+            // 仅在「无空闲」或「库存为空」时，才因“库存未变化”而跳过；否则（有空闲且有货）一律继续扫描
+            bool inventoryChanged = HasInventoryChanged(logistics, currentInventory);
+            if (!inventoryChanged && (logistics.idleCount <= 0 || currentInventory.Count == 0))
+                return null;
+
+            if (logistics.idleCount <= 0)
+                return null;
+
+            Vector3 basePosition = Vector3.zero;
+            if (entityId >= 0 && factory.entityPool != null && entityId < factory.entityPool.Length)
+                basePosition = factory.entityPool[entityId].pos;
+
+            var demands = ScanDispenserDemands(factory, basePosition, currentInventory);
+            if (demands.Count == 0)
+            {
+                logistics.lastInventory = new Dictionary<int, int>(currentInventory);
+                return null;
+            }
+
+            return new DispatchContext(demands, currentInventory, basePosition);
         }
 
         /// <summary>

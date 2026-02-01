@@ -80,10 +80,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 UpdateBuffer(__instance, currentCount);
                 
                 // 调试日志
-                if (addedCouriers > 0 && Plugin.DebugLog())
-                {
-                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🎨 渲染无人机: 行星[{planetId}] 基站无人机数={addedCouriers} 总无人机数={currentCount}");
-                }
+                // if (addedCouriers > 0 && Plugin.DebugLog())
+                // {
+                //     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🎨 渲染无人机: 行星[{planetId}] 基站无人机数={addedCouriers} 总无人机数={currentCount}");
+                // }
             }
             catch (Exception ex)
             {

@@ -29,52 +29,20 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 // 更新所有飞行中的无人机
                 UpdateCouriers(logistics, __instance, factory);
 
-                // 冷却计数
-                logistics.cooldownCounter++;
-                if (logistics.cooldownCounter < BaseLogisticSystem.DISPATCH_INTERVAL)
-                    return;
-
-                logistics.cooldownCounter = 0;
-
-                // 获取当前库存
-                var currentInventory = BattleBaseLogisticsManager.GetBaseInventory(__instance);
-
-                // 检测库存是否变化
-                if (!BattleBaseLogisticsManager.HasInventoryChanged(logistics, currentInventory))
-                    return;
-
-                // 库存变化了，更新记录
-                logistics.lastInventory = new Dictionary<int, int>(currentInventory);
-
-                // 如果没有空闲无人机，不派遣
-                if (logistics.idleCount <= 0)
-                    return;
-
-                // 获取基站位置
-                Vector3 basePosition = Vector3.zero;
-                if (__instance.entityId < factory.entityPool.Length)
-                {
-                    basePosition = factory.entityPool[__instance.entityId].pos;
-                }
-
-                // 扫描配送器需求
-                var demands = BattleBaseLogisticsManager.ScanDispenserDemands(factory, basePosition, currentInventory);
-
-                if (demands.Count == 0)
+                // 由 Manager 统一判断：cooldown、库存变化跳过、无空闲/无需求等；仅在本帧应派遣时返回上下文
+                var ctx = BattleBaseLogisticsManager.TryGetDispatchContext(logistics, __instance, factory, __instance.entityId);
+                if (ctx == null)
                     return;
 
                 // 派遣无人机（按优先级）
                 int dispatched = 0;
-                foreach (var demand in demands)
+                foreach (var demand in ctx.Demands)
                 {
                     if (logistics.idleCount <= 0)
                         break;
 
-                    // 派遣一个无人机
-                    if (DispatchCourier(logistics, __instance, factory, demand, basePosition, currentInventory))
-                    {
+                    if (DispatchCourier(logistics, __instance, factory, demand, ctx.BasePosition, ctx.CurrentInventory))
                         dispatched++;
-                    }
                 }
 
                 if (dispatched > 0 && Plugin.DebugLog())
@@ -97,7 +65,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 // 从基站存储取出物品
                 int itemId = demand.itemId;
-                int maxAmount = 50; // 无人机容量（可以从配置读取）
+                int maxAmount = 100; // 无人机容量（可以从配置读取）
                 int beforeAmount = currentInventory.ContainsKey(itemId) ? currentInventory[itemId] : 0;
                 int actualAmount = 0;
                 int inc = 0;
