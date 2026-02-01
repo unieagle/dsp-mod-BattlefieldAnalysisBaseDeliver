@@ -63,9 +63,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         {
             try
             {
-                // 从基站存储取出物品
                 int itemId = demand.itemId;
                 int maxAmount = 100; // 无人机容量（可以从配置读取）
+                if (demand.IsMechaSlot && demand.needCount > 0 && demand.needCount < maxAmount)
+                    maxAmount = demand.needCount;
+
                 int beforeAmount = currentInventory.ContainsKey(itemId) ? currentInventory[itemId] : 0;
                 int actualAmount = 0;
                 int inc = 0;
@@ -78,15 +80,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 int afterAmount = beforeAmount - actualAmount;
 
-                // 计算路径
                 Vector3 targetPosition = demand.position;
                 float distance = Vector3.Distance(basePosition, targetPosition);
 
-                // 找到一个空闲无人机
                 int courierIndex = -1;
                 for (int i = 0; i < logistics.couriers.Length; i++)
                 {
-                    if (logistics.couriers[i].maxt <= 0f) // 空闲标志
+                    if (logistics.couriers[i].maxt <= 0f)
                     {
                         courierIndex = i;
                         break;
@@ -95,19 +95,30 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 if (courierIndex < 0)
                 {
-                    // 没有空闲无人机，返还物品
                     ReturnItemToBase(battleBase, itemId, actualAmount, inc);
                     return false;
                 }
 
-                // 设置无人机数据
+                // 机甲配送栏目标用负数 endId：-(slotIndex+1)
+                // 原版配送器送往玩家时：begin=end=配送器位置，maxt=1，t=0；之后每帧在 InternalTick 里按“追踪玩家”逻辑更新 begin/end/t
+                int endId = demand.IsMechaSlot ? -(demand.slotIndex + 1) : demand.dispenserId;
+                float maxt = distance;
+                Vector3 beginPos = basePosition;
+                Vector3 endPos = targetPosition;
+                if (demand.IsMechaSlot)
+                {
+                    beginPos = basePosition;
+                    endPos = basePosition;
+                    maxt = 1f;
+                }
+
                 logistics.couriers[courierIndex] = new CourierData
                 {
-                    begin = basePosition,
-                    end = targetPosition,
-                    endId = demand.dispenserId,  // 存储目标配送器ID
-                    direction = 1f,              // 1 = 去，-1 = 回
-                    maxt = distance,
+                    begin = beginPos,
+                    end = endPos,
+                    endId = endId,
+                    direction = 1f,
+                    maxt = maxt,
                     t = 0f,
                     itemId = itemId,
                     itemCount = actualAmount,
@@ -118,11 +129,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 logistics.idleCount--;
                 logistics.workingCount++;
 
-                // 打印派遣日志
                 if (Plugin.DebugLog())
                 {
                     string itemName = GetItemName(itemId);
-                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 派遣无人机: 基站[{battleBase.id}] → 配送器[{demand.dispenserId}] 物品={itemName}(ID:{itemId}) 派遣={actualAmount} 剩余={afterAmount} 紧急度={demand.urgency:F2}");
+                    string targetDesc = demand.IsMechaSlot ? $"机甲槽位[{demand.slotIndex}]" : $"配送器[{demand.dispenserId}]";
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 派遣无人机: 基站[{battleBase.id}] → {targetDesc} 物品={itemName}(ID:{itemId}) 派遣={actualAmount} 剩余={afterAmount} 紧急度={demand.urgency:F2}");
                 }
 
                 return true;
@@ -147,6 +158,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 float courierSpeed = GameMain.history.logisticCourierSpeedModified;
                 float deltaT = courierSpeed * 0.016666668f; // 1帧的移动距离
 
+                Vector3 basePos = factory.entityPool[battleBase.entityId].pos;
+                Vector3? playerPosNullable = GameMain.mainPlayer != null ? GameMain.mainPlayer.position : (Vector3?)null;
+
                 for (int i = 0; i < logistics.couriers.Length; i++)
                 {
                     ref CourierData courier = ref logistics.couriers[i];
@@ -154,41 +168,59 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     if (courier.maxt <= 0f) // 空闲
                         continue;
 
-                    // 更新位置
-                    courier.t += deltaT * courier.direction;
+                    // 目标为机甲时：与原版一致，每帧用“追踪玩家”逻辑更新 begin/end/t，不按线性 t+=deltaT
+                    if (courier.endId < 0 && courier.direction > 0f && playerPosNullable.HasValue)
+                    {
+                        UpdateCourierToMecha(ref courier, basePos, playerPosNullable.Value, courierSpeed);
+                    }
+                    else
+                    {
+                        courier.t += deltaT * courier.direction;
+                    }
 
                     // 检查是否到达目标点（去程）
                     if (courier.direction > 0f && courier.t >= courier.maxt)
                     {
                         courier.t = courier.maxt;
 
-                        // 送货到配送器
-                        bool delivered = DeliverToDispenser(factory, courier.endId, courier.itemId, courier.itemCount, courier.inc);
-                        
-                        if (delivered)
+                        bool delivered;
+                        if (courier.endId < 0)
                         {
-                            if (Plugin.DebugLog())
+                            // 送往机甲配送栏：slotIndex = -(endId+1)
+                            int slotIndex = -(courier.endId + 1);
+                            delivered = DeliverToMecha(slotIndex, courier.itemId, courier.itemCount, courier.inc);
+                            if (Plugin.DebugLog() && delivered)
+                            {
+                                string itemName = GetItemName(courier.itemId);
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 机甲槽位[{slotIndex}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
+                            }
+                        }
+                        else
+                        {
+                            delivered = DeliverToDispenser(factory, courier.endId, courier.itemId, courier.itemCount, courier.inc);
+                            if (Plugin.DebugLog() && delivered)
                             {
                                 string itemName = GetItemName(courier.itemId);
                                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 配送器[{courier.endId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
                             }
-                            
-                            // 清空货物，准备返回
+                        }
+
+                        if (delivered)
+                        {
                             courier.itemId = 0;
                             courier.itemCount = 0;
                             courier.inc = 0;
                         }
                         else
                         {
-                            // 送货失败，记录日志（物品保留，返回基站时退还）
                             if (Plugin.DebugLog())
                             {
                                 string itemName = GetItemName(courier.itemId);
-                                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 送货失败: 配送器[{courier.endId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}，将返还到基站");
+                                string targetDesc = courier.endId < 0 ? $"机甲槽位[{-courier.endId - 1}]" : $"配送器[{courier.endId}]";
+                                Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 送货失败: {targetDesc} 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}，将返还到基站");
                             }
                         }
-                        
-                        // 准备返回
+
                         courier.direction = -1f;
                     }
                     // 检查是否返回基站（回程）
@@ -231,6 +263,63 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             catch (Exception ex)
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] UpdateCouriers 异常: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 目标为机甲时，按原版 DispenserComponent 逻辑每帧更新 courier 的 begin/end/maxt/t，
+        /// 使无人机视觉上从基站飞向移动中的玩家（end 每帧向玩家靠近，t 表示当前 end 到玩家的距离）。
+        /// </summary>
+        private static void UpdateCourierToMecha(ref CourierData courier, Vector3 basePos, Vector3 playerPos, float courierSpeed)
+        {
+            Vector3 end = courier.end;
+            float dx = playerPos.x - end.x;
+            float dy = playerPos.y - end.y;
+            float dz = playerPos.z - end.z;
+            float num33 = (float)Math.Sqrt((double)(dx * dx + dy * dy + dz * dz));
+            float num34 = (float)Math.Sqrt((double)((playerPos.x - basePos.x) * (playerPos.x - basePos.x) + (playerPos.y - basePos.y) * (playerPos.y - basePos.y) + (playerPos.z - basePos.z) * (playerPos.z - basePos.z)));
+            float num35 = (float)Math.Sqrt((double)(end.x * end.x + end.y * end.y + end.z * end.z));
+            float num36 = (float)Math.Sqrt((double)(playerPos.x * playerPos.x + playerPos.y * playerPos.y + playerPos.z * playerPos.z));
+
+            if (num33 < 1.4f)
+            {
+                // 当前 end 已接近玩家，视为到达：设 begin=基站、maxt=弧线距离、t=maxt，本帧会触发 t>=maxt 送货
+                double num37 = Math.Sqrt((double)(basePos.x * basePos.x + basePos.y * basePos.y + basePos.z * basePos.z));
+                double num38 = Math.Sqrt((double)(playerPos.x * playerPos.x + playerPos.y * playerPos.y + playerPos.z * playerPos.z));
+                double num39 = (double)(basePos.x * playerPos.x + basePos.y * playerPos.y + basePos.z * playerPos.z) / (num37 * num38);
+                if (num39 < -1.0) num39 = -1.0;
+                else if (num39 > 1.0) num39 = 1.0;
+                courier.begin = basePos;
+                courier.maxt = (float)(Math.Acos(num39) * ((num37 + num38) * 0.5));
+                courier.maxt = (float)Math.Sqrt((double)(courier.maxt * courier.maxt) + (num37 - num38) * (num37 - num38));
+                courier.t = courier.maxt;
+            }
+            else
+            {
+                courier.begin = end;
+                float num40 = courierSpeed * 0.016666668f / num33;
+                if (num40 > 1f) num40 = 1f;
+                float stepX = dx * num40;
+                float stepY = dy * num40;
+                float stepZ = dz * num40;
+                float num41 = num33 / courierSpeed;
+                if (num41 < 0.03333333f) num41 = 0.03333333f;
+                float num42 = (num36 - num35) / num41 * 0.016666668f;
+                end.x += stepX;
+                end.y += stepY;
+                end.z += stepZ;
+                float len = (float)Math.Sqrt((double)(end.x * end.x + end.y * end.y + end.z * end.z));
+                if (len > 1E-05f)
+                {
+                    float scale = (num35 + num42) / len;
+                    end.x *= scale;
+                    end.y *= scale;
+                    end.z *= scale;
+                }
+                courier.end = end;
+                if (num34 > courier.maxt) courier.maxt = num34;
+                courier.t = num33;
+                if (courier.t >= courier.maxt * 0.99f) courier.t = courier.maxt * 0.99f;
             }
         }
 
@@ -288,6 +377,32 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             catch (Exception ex)
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] ReturnItemToBase 异常: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 送货到机甲（玩家）配送栏槽位：调用 packageUtility.AddItemToAllPackages，与游戏配送器逻辑一致。
+        /// </summary>
+        private static bool DeliverToMecha(int slotIndex, int itemId, int count, int inc)
+        {
+            try
+            {
+                var player = GameMain.mainPlayer;
+                if (player?.packageUtility == null) return false;
+                if (itemId <= 0 || count <= 0 || itemId == 1099) return false;
+
+                int added = player.packageUtility.AddItemToAllPackages(itemId, count, slotIndex, inc, out int remainInc, 0);
+                if (added > 0)
+                {
+                    player.NotifyReplenishPreferred(itemId, added);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToMecha 异常: {ex.Message}\n{ex.StackTrace}");
+                return false;
             }
         }
 

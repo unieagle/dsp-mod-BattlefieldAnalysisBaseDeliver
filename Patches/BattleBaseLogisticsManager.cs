@@ -28,7 +28,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     }
 
     /// <summary>
-    /// 配送器需求信息
+    /// 配送器需求信息（也用于机甲配送栏需求：IsMechaSlot=true 时表示送往玩家配送栏槽位）
     /// </summary>
     public class DispenserDemand
     {
@@ -40,7 +40,14 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public int maxStock;            // 最大容量
         public float urgency;           // 紧急度 0-1（越小越紧急）
         public Vector3 position;        // 位置
-        public float distance;          // 距离基站的距离
+        public float distance;         // 距离基站的距离
+
+        /// <summary> true 表示送往机甲（玩家）配送栏槽位，此时 dispenserId 忽略，用 slotIndex 标识目标 </summary>
+        public bool IsMechaSlot;
+        /// <summary> 机甲配送栏槽位索引 0..gridLength-1，仅当 IsMechaSlot 时有效 </summary>
+        public int slotIndex;
+        /// <summary> 需要补货的数量（机甲槽位用；配送器需求可忽略） </summary>
+        public int needCount;
     }
 
     /// <summary>
@@ -270,6 +277,91 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
+        /// 扫描机甲（玩家）配送栏需求：遍历 mainPlayer.deliveryPackage，找出需要补货的槽位。
+        /// 仅在当前星球、工厂已加载、玩家未航行、存活、deliveryPackage.unlockedAndEnabled 时有效。
+        /// </summary>
+        public static List<DispenserDemand> ScanMechaDemands(PlanetFactory factory, Vector3 basePosition, Dictionary<int, int> baseInventory)
+        {
+            var demands = new List<DispenserDemand>();
+
+            try
+            {
+                if (factory == null) return demands;
+                var player = GameMain.mainPlayer;
+                if (player == null || !player.isAlive || player.sailing) return demands;
+
+                var deliveryPackage = player.deliveryPackage;
+                var packageUtility = player.packageUtility;
+                if (deliveryPackage == null || packageUtility == null) return demands;
+                if (!deliveryPackage.unlockedAndEnabled) return demands;
+
+                var planet = factory.planet;
+                if (planet == null || GameMain.localPlanet != planet || !planet.loaded || !planet.factoryLoaded)
+                    return demands;
+
+                var grids = deliveryPackage.grids;
+                if (grids == null) return demands;
+
+                Vector3 playerPos = player.position;
+                if (playerPos.sqrMagnitude < 0.01f) return demands;
+
+                float baseDist = Vector3.Distance(basePosition, playerPos);
+
+                for (int j = 0; j < deliveryPackage.gridLength; j++)
+                {
+                    if (!deliveryPackage.IsGridActive(j)) continue;
+                    if (grids[j].itemId <= 0) continue;
+                    int itemId = grids[j].itemId;
+                    if (itemId == 1099) continue; // 游戏内 AddItemToAllPackages 会拒绝 1099
+
+                    if (!baseInventory.ContainsKey(itemId) || baseInventory[itemId] <= 0)
+                        continue;
+
+                    int currentTotal = grids[j].count + packageUtility.GetPackageItemCountIncludeHandItem(itemId);
+                    int clampedRequire = grids[j].clampedRequireCount;
+                    if (currentTotal >= clampedRequire) continue;
+
+                    int slotCapacity = grids[j].stackSizeModified - grids[j].count + packageUtility.GetPackageItemCapacity(itemId);
+                    if (slotCapacity <= 0) continue;
+
+                    int needCount = clampedRequire - currentTotal;
+                    if (needCount <= 0) continue;
+
+                    float urgency = clampedRequire > 0 ? (float)currentTotal / clampedRequire : 1f;
+
+                    demands.Add(new DispenserDemand
+                    {
+                        IsMechaSlot = true,
+                        slotIndex = j,
+                        needCount = needCount,
+                        dispenserId = 0,
+                        entityId = 0,
+                        storageId = 0,
+                        itemId = itemId,
+                        currentStock = currentTotal,
+                        maxStock = clampedRequire,
+                        urgency = urgency,
+                        position = playerPos,
+                        distance = baseDist
+                    });
+                }
+
+                demands.Sort((a, b) =>
+                {
+                    int c = a.urgency.CompareTo(b.urgency);
+                    if (c != 0) return c;
+                    return a.distance.CompareTo(b.distance);
+                });
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] ScanMechaDemands 异常: {ex.Message}");
+            }
+
+            return demands;
+        }
+
+        /// <summary>
         /// 判断本帧是否应派遣并返回派遣上下文：内部处理 cooldown、库存变化跳过、无空闲/无需求等逻辑。
         /// 返回 null 表示本帧应跳过（冷却中、无变化且无待发可能、无空闲、无需求）；非 null 表示应执行派遣。
         /// </summary>
@@ -297,7 +389,21 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             if (entityId >= 0 && factory.entityPool != null && entityId < factory.entityPool.Length)
                 basePosition = factory.entityPool[entityId].pos;
 
-            var demands = ScanDispenserDemands(factory, basePosition, currentInventory);
+            var dispenserDemands = ScanDispenserDemands(factory, basePosition, currentInventory);
+            var mechaDemands = ScanMechaDemands(factory, basePosition, currentInventory);
+            var demands = new List<DispenserDemand>(mechaDemands.Count + dispenserDemands.Count);
+            demands.AddRange(mechaDemands);
+            demands.AddRange(dispenserDemands);
+            // 优先机甲：机甲(IsMechaSlot=true) 排在前，再按紧急度、距离
+            demands.Sort((a, b) =>
+            {
+                int mechaFirst = (a.IsMechaSlot ? 0 : 1).CompareTo(b.IsMechaSlot ? 0 : 1);
+                if (mechaFirst != 0) return mechaFirst;
+                int c = a.urgency.CompareTo(b.urgency);
+                if (c != 0) return c;
+                return a.distance.CompareTo(b.distance);
+            });
+
             if (demands.Count == 0)
             {
                 logistics.lastInventory = new Dictionary<int, int>(currentInventory);
