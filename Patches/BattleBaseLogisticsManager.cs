@@ -30,7 +30,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     }
 
     /// <summary>
-    /// 配送器需求信息（也用于机甲配送栏需求：IsMechaSlot=true 时表示送往玩家配送栏槽位）
+    /// 配送器需求信息（也用于机甲配送栏、物流塔：IsMechaSlot/IsStationTower 时表示送往对应目标）
     /// </summary>
     public class DispenserDemand
     {
@@ -50,6 +50,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public int slotIndex;
         /// <summary> 需要补货的数量（机甲槽位用；配送器需求可忽略） </summary>
         public int needCount;
+
+        /// <summary> true 表示送往物流塔（本地需求槽位），此时 dispenserId 忽略，用 stationId 标识目标 </summary>
+        public bool IsStationTower;
+        /// <summary> 物流塔在 PlanetTransport.stationPool 中的 id，仅当 IsStationTower 时有效 </summary>
+        public int stationId;
     }
 
     /// <summary>
@@ -283,6 +288,93 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
+        /// 扫描物流塔需求：仅对「设置了对应物品本地需求且当前数量不足需求数量」的槽位生成需求。
+        /// </summary>
+        public static List<DispenserDemand> ScanStationDemands(PlanetFactory factory, Vector3 basePosition, Dictionary<int, int> baseInventory)
+        {
+            var demands = new List<DispenserDemand>();
+
+            try
+            {
+                if (factory == null) return demands;
+
+                var transport = factory.transport;
+                if (transport == null) return demands;
+
+                var stationPool = transport.stationPool;
+                if (stationPool == null) return demands;
+
+                int stationCursor = transport.stationCursor;
+                var entityPool = factory.entityPool;
+                if (entityPool == null) return demands;
+
+                for (int i = 1; i < stationCursor && i < stationPool.Length; i++)
+                {
+                    StationComponent? station = stationPool[i];
+                    if (station == null || station.id != i) continue;
+
+                    if (station.storage == null) continue;
+
+                    for (int k = 0; k < station.storage.Length; k++)
+                    {
+                        StationStore store = station.storage[k];
+                        // 只处理：已配置物品、本地需求、数量不足（需求空间 > 0）
+                        if (store.itemId <= 0) continue;
+                        if (store.localLogic != ELogisticStorage.Demand) continue;
+
+                        int currentPlusOrdered = store.count + store.localOrder;
+                        if (currentPlusOrdered >= store.max) continue;
+
+                        int needSpace = store.max - currentPlusOrdered;
+                        if (needSpace <= 0) continue;
+
+                        if (!baseInventory.ContainsKey(store.itemId) || baseInventory[store.itemId] <= 0)
+                            continue;
+
+                        Vector3 stationPos = Vector3.zero;
+                        if (station.entityId > 0 && station.entityId < entityPool.Length)
+                        {
+                            var entity = entityPool[station.entityId];
+                            if (entity.id > 0)
+                                stationPos = entity.pos;
+                        }
+
+                        float distance = Vector3.Distance(basePosition, stationPos);
+                        float urgency = store.max > 0 ? (float)currentPlusOrdered / store.max : 1f;
+
+                        demands.Add(new DispenserDemand
+                        {
+                            IsStationTower = true,
+                            stationId = station.id,
+                            dispenserId = 0,
+                            entityId = station.entityId,
+                            storageId = 0,
+                            itemId = store.itemId,
+                            currentStock = currentPlusOrdered,
+                            maxStock = store.max,
+                            urgency = urgency,
+                            position = stationPos,
+                            distance = distance
+                        });
+                    }
+                }
+
+                demands.Sort((a, b) =>
+                {
+                    int c = a.urgency.CompareTo(b.urgency);
+                    if (c != 0) return c;
+                    return a.distance.CompareTo(b.distance);
+                });
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] ScanStationDemands 异常: {ex.Message}");
+            }
+
+            return demands;
+        }
+
+        /// <summary>
         /// 扫描机甲（玩家）配送栏需求：遍历 mainPlayer.deliveryPackage，找出需要补货的槽位。
         /// 仅在当前星球、工厂已加载、玩家未航行、存活、deliveryPackage.unlockedAndEnabled 时有效。
         /// </summary>
@@ -395,16 +487,20 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             if (entityId >= 0 && factory.entityPool != null && entityId < factory.entityPool.Length)
                 basePosition = factory.entityPool[entityId].pos;
 
-            var dispenserDemands = ScanDispenserDemands(factory, basePosition, currentInventory);
             var mechaDemands = ScanMechaDemands(factory, basePosition, currentInventory);
-            var demands = new List<DispenserDemand>(mechaDemands.Count + dispenserDemands.Count);
+            var stationDemands = ScanStationDemands(factory, basePosition, currentInventory);
+            var dispenserDemands = ScanDispenserDemands(factory, basePosition, currentInventory);
+            var demands = new List<DispenserDemand>(mechaDemands.Count + stationDemands.Count + dispenserDemands.Count);
             demands.AddRange(mechaDemands);
+            demands.AddRange(stationDemands);
             demands.AddRange(dispenserDemands);
-            // 优先机甲：机甲(IsMechaSlot=true) 排在前，再按紧急度、距离
+            // 优先顺序：机甲 > 物流塔 > 配送器，同类型内按紧急度、距离
             demands.Sort((a, b) =>
             {
-                int mechaFirst = (a.IsMechaSlot ? 0 : 1).CompareTo(b.IsMechaSlot ? 0 : 1);
-                if (mechaFirst != 0) return mechaFirst;
+                int priorityA = a.IsMechaSlot ? 0 : (a.IsStationTower ? 1 : 2);
+                int priorityB = b.IsMechaSlot ? 0 : (b.IsStationTower ? 1 : 2);
+                int pri = priorityA.CompareTo(priorityB);
+                if (pri != 0) return pri;
                 int c = a.urgency.CompareTo(b.urgency);
                 if (c != 0) return c;
                 return a.distance.CompareTo(b.distance);

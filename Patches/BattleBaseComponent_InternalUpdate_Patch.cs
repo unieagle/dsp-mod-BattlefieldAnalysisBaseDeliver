@@ -12,6 +12,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     [HarmonyPatch(typeof(BattleBaseComponent), "InternalUpdate")]
     public static class BattleBaseComponent_InternalUpdate_Patch
     {
+        /// <summary> 物流塔目标时 endId = STATION_ENDID_OFFSET + stationId，用于区分配送器（正数）和机甲（负数） </summary>
+        private const int STATION_ENDID_OFFSET = 20000;
+
         [HarmonyPostfix]
         static void Postfix(BattleBaseComponent __instance, PlanetFactory factory)
         {
@@ -99,9 +102,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return false;
                 }
 
-                // 机甲配送栏目标用负数 endId：-(slotIndex+1)
-                // 原版配送器送往玩家时：begin=end=配送器位置，maxt=1，t=0；之后每帧在 InternalTick 里按“追踪玩家”逻辑更新 begin/end/t
-                int endId = demand.IsMechaSlot ? -(demand.slotIndex + 1) : demand.dispenserId;
+                // 机甲：endId = -(slotIndex+1)；物流塔：endId = STATION_ENDID_OFFSET + stationId；配送器：endId = dispenserId
+                int endId = demand.IsMechaSlot ? -(demand.slotIndex + 1) : (demand.IsStationTower ? STATION_ENDID_OFFSET + demand.stationId : demand.dispenserId);
                 float maxt = distance;
                 Vector3 beginPos = basePosition;
                 Vector3 endPos = targetPosition;
@@ -132,7 +134,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 if (Plugin.DebugLog())
                 {
                     string itemName = GetItemName(itemId);
-                    string targetDesc = demand.IsMechaSlot ? $"机甲槽位[{demand.slotIndex}]" : $"配送器[{demand.dispenserId}]";
+                    string targetDesc = demand.IsMechaSlot ? $"机甲槽位[{demand.slotIndex}]" : (demand.IsStationTower ? $"物流塔[{demand.stationId}]" : $"配送器[{demand.dispenserId}]");
                     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 派遣无人机: 基站[{battleBase.id}] → {targetDesc} 物品={itemName}(ID:{itemId}) 派遣={actualAmount} 剩余={afterAmount} 紧急度={demand.urgency:F2}");
                 }
 
@@ -170,6 +172,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         continue;
 
                     // 目标为机甲时：与原版一致，每帧用“追踪玩家”逻辑更新 begin/end/t，不按线性 t+=deltaT
+                    // 物流塔（endId >= STATION_ENDID_OFFSET）与配送器：线性 t += deltaT
                     if (courier.endId < 0 && courier.direction > 0f && playerPosNullable.HasValue)
                     {
                         UpdateCourierToMecha(ref courier, basePos, playerPosNullable.Value, courierSpeed);
@@ -196,6 +199,16 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                                 Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 机甲槽位[{slotIndex}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
                             }
                         }
+                        else if (courier.endId >= STATION_ENDID_OFFSET)
+                        {
+                            int stationId = courier.endId - STATION_ENDID_OFFSET;
+                            delivered = DeliverToStation(factory, stationId, courier.itemId, courier.itemCount, courier.inc);
+                            if (Plugin.DebugLog() && delivered)
+                            {
+                                string itemName = GetItemName(courier.itemId);
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 物流塔[{stationId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
+                            }
+                        }
                         else
                         {
                             delivered = DeliverToDispenser(factory, courier.endId, courier.itemId, courier.itemCount, courier.inc);
@@ -217,7 +230,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             if (Plugin.DebugLog())
                             {
                                 string itemName = GetItemName(courier.itemId);
-                                string targetDesc = courier.endId < 0 ? $"机甲槽位[{-courier.endId - 1}]" : $"配送器[{courier.endId}]";
+                                string targetDesc = courier.endId < 0 ? $"机甲槽位[{-courier.endId - 1}]" : (courier.endId >= STATION_ENDID_OFFSET ? $"物流塔[{courier.endId - STATION_ENDID_OFFSET}]" : $"配送器[{courier.endId}]");
                                 Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 送货失败: {targetDesc} 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}，将返还到基站");
                             }
                         }
@@ -405,6 +418,29 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             catch (Exception ex)
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToMecha 异常: {ex.Message}\n{ex.StackTrace}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 送货到物流塔：调用 StationComponent.AddItem，仅会写入已配置该物品的槽位（本地需求槽位）。
+        /// </summary>
+        private static bool DeliverToStation(PlanetFactory factory, int stationId, int itemId, int count, int inc)
+        {
+            try
+            {
+                if (factory?.transport == null) return false;
+                if (stationId <= 0) return false;
+
+                StationComponent? station = factory.transport.GetStationComponent(stationId);
+                if (station == null || station.id != stationId) return false;
+
+                int added = station.AddItem(itemId, count, inc);
+                return added > 0;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToStation 异常: {ex.Message}\n{ex.StackTrace}");
                 return false;
             }
         }
