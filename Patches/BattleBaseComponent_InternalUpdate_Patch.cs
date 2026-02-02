@@ -156,7 +156,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return;
 
                 float courierSpeed = GameMain.history.logisticCourierSpeedModified;
-                courierSpeed *= 2.0f;
+                courierSpeed *= Plugin.GetBattleBaseCourierSpeedMultiplier();
                 float deltaT = courierSpeed * 0.016666668f; // 1帧的移动距离
 
                 Vector3 basePos = factory.entityPool[battleBase.entityId].pos;
@@ -357,7 +357,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
-        /// 返还物品到基站
+        /// 返还物品到基站（与 StorageComponent.AddItem(int, int, int, out int, bool) 签名一致）
         /// </summary>
         private static void ReturnItemToBase(BattleBaseComponent battleBase, int itemId, int count, int inc)
         {
@@ -365,15 +365,17 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 if (battleBase.storage == null) return;
 
-                var addItemMethod = battleBase.storage.GetType().GetMethod("AddItem", 
+                // StorageComponent.AddItem(int itemId, int count, int inc, out int remainInc, bool useBan = false)
+                var addItemMethod = battleBase.storage.GetType().GetMethod("AddItem",
                     BindingFlags.Public | BindingFlags.Instance,
                     null,
-                    new Type[] { typeof(int), typeof(int), typeof(int) },
+                    new Type[] { typeof(int), typeof(int), typeof(int), typeof(int).MakeByRefType(), typeof(bool) },
                     null);
 
                 if (addItemMethod == null) return;
 
-                addItemMethod.Invoke(battleBase.storage, new object[] { itemId, count, inc });
+                object[] args = new object[] { itemId, count, inc, 0, false };
+                addItemMethod.Invoke(battleBase.storage, args);
             }
             catch (Exception ex)
             {

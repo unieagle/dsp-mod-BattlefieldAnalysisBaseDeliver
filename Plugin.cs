@@ -10,11 +10,35 @@ namespace BattlefieldAnalysisBaseDeliver
     {
         public static ManualLogSource? Log;
         public static ConfigEntry<bool> EnableDebugLog = null!;
+        public static ConfigEntry<int> BattleBaseCourierCount = null!;
+        public static ConfigEntry<float> BattleBaseCourierSpeedMultiplier = null!;
 
         /// <summary>
         /// 调试日志开关：由配置文件控制
         /// </summary>
         public static bool DebugLog() => EnableDebugLog?.Value ?? false;
+
+        /// <summary>
+        /// 每个基站的无人机总数（已限制在 1～200 范围内）
+        /// </summary>
+        public static int GetBattleBaseCourierCount()
+        {
+            int v = BattleBaseCourierCount?.Value ?? 20;
+            if (v < 1) return 1;
+            if (v > 200) return 200;
+            return v;
+        }
+
+        /// <summary>
+        /// 基站无人机速度倍率（在游戏物流速度基础上的倍数，已限制在 0.1～10 范围内）
+        /// </summary>
+        public static float GetBattleBaseCourierSpeedMultiplier()
+        {
+            float v = BattleBaseCourierSpeedMultiplier?.Value ?? 2f;
+            if (v < 0.1f) return 0.1f;
+            if (v > 10f) return 10f;
+            return v;
+        }
 
         private void Awake()
         {
@@ -26,6 +50,22 @@ namespace BattlefieldAnalysisBaseDeliver
                 "EnableDebugLog",
                 false,
                 "为 true 时在日志中输出详细的调试信息，用于排查问题。正常使用时建议设置为 false。");
+
+            BattleBaseCourierCount = Config.Bind(
+                "General",
+                "BattleBaseCourierCount",
+                20,
+                new BepInEx.Configuration.ConfigDescription(
+                    "每个战场基站的无人机总数（1～200，默认 20）。修改后需重新进入存档或重新加载星球后生效。",
+                    new BepInEx.Configuration.AcceptableValueRange<int>(1, 200)));
+
+            BattleBaseCourierSpeedMultiplier = Config.Bind(
+                "General",
+                "BattleBaseCourierSpeedMultiplier",
+                2f,
+                new BepInEx.Configuration.ConfigDescription(
+                    "基站无人机速度倍率（在游戏物流速度基础上的倍数，0.1～10，默认 2.0）。",
+                    new BepInEx.Configuration.AcceptableValueRange<float>(0.1f, 10f)));
 
             var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
@@ -124,7 +164,7 @@ namespace BattlefieldAnalysisBaseDeliver
 
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ========================================");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 加载完成！基站直接派遣方案");
-            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 战场基站拥有独立的10个无人机");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 战场基站无人机数量: {GetBattleBaseCourierCount()}，速度倍率: {GetBattleBaseCourierSpeedMultiplier()}（可在配置中修改）");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 无需虚拟配送器，性能优化");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 💾 存档安全，自动兼容旧方案");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ========================================");

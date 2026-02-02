@@ -33,6 +33,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                     foreach (var logistics in baseLogistics)
                     {
+                        if (logistics.couriers == null) continue;
                         // 返还所有在途物品
                         for (int i = 0; i < logistics.couriers.Length; i++)
                         {
@@ -43,36 +44,44 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                             totalCouriers++;
 
-                            // 如果无人机携带物品，返还到基站
+                            // 如果无人机携带物品，返还到基站（必须成功，否则会造成物品丢失）
+                            bool itemReturned = false;
                             if (courier.itemId > 0 && courier.itemCount > 0)
                             {
                                 if (ReturnItemToBase(factory, logistics.battleBaseId, courier.itemId, courier.itemCount, courier.inc))
                                 {
                                     totalReturned++;
-                                    
+                                    itemReturned = true;
                                     if (Plugin.DebugLog())
                                     {
                                         string itemName = GetItemName(courier.itemId);
                                         Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 返还物品: 基站[{logistics.battleBaseId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
                                     }
                                 }
+                                else
+                                {
+                                    Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 存档返还失败: 基站[{logistics.battleBaseId}] 物品(ID:{courier.itemId})x{courier.itemCount} 未写入基站，可能丢失");
+                                }
                             }
 
-                            // 清空无人机
+                            // 清空无人机槽位；仅当无物品或返还成功时清空物品字段，避免返还失败时误抹掉
                             courier.maxt = 0f;
                             courier.begin = UnityEngine.Vector3.zero;
                             courier.end = UnityEngine.Vector3.zero;
                             courier.endId = 0;
                             courier.direction = 0f;
                             courier.t = 0f;
-                            courier.itemId = 0;
-                            courier.itemCount = 0;
-                            courier.inc = 0;
+                            if (courier.itemId <= 0 || courier.itemCount <= 0 || itemReturned)
+                            {
+                                courier.itemId = 0;
+                                courier.itemCount = 0;
+                                courier.inc = 0;
+                            }
                         }
 
-                        // 重置计数
+                        // 重置计数：所有无人机已回收，空闲数 = 该基站容量（与配置一致）
                         logistics.workingCount = 0;
-                        logistics.idleCount = 10;
+                        logistics.idleCount = logistics.couriers?.Length ?? 20;
                     }
                 }
 
@@ -117,15 +126,17 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 object? storage = storageField?.GetValue(battleBase);
                 if (storage == null) return false;
 
+                // StorageComponent.AddItem(int itemId, int count, int inc, out int remainInc, bool useBan = false)
                 var addItemMethod = storage.GetType().GetMethod("AddItem",
                     BindingFlags.Public | BindingFlags.Instance,
                     null,
-                    new Type[] { typeof(int), typeof(int), typeof(int) },
+                    new Type[] { typeof(int), typeof(int), typeof(int), typeof(int).MakeByRefType(), typeof(bool) },
                     null);
 
                 if (addItemMethod == null) return false;
 
-                addItemMethod.Invoke(storage, new object[] { itemId, count, inc });
+                object[] args = new object[] { itemId, count, inc, 0, false };
+                addItemMethod.Invoke(storage, args);
                 return true;
             }
             catch

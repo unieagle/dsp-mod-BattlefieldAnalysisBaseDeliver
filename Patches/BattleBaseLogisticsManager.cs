@@ -14,9 +14,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public int battleBaseId;
         public int planetId;
         
-        // 无人机数据（与游戏的 CourierData 完全兼容）
+        // 无人机数据（与游戏的 CourierData 完全兼容），容量由配置 BattleBaseCourierCount 决定
         public CourierData[] couriers = new CourierData[20];
         public int idleCount = 20;
+        /// <summary> 本基站无人机容量（创建时由配置决定，之后不变） </summary>
+        public int CourierCapacity => couriers?.Length ?? 0;
         public int workingCount = 0;
         
         // 库存追踪（用于检测变化）
@@ -89,10 +91,14 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 if (!_systems[planetId].ContainsKey(battleBaseId))
                 {
+                    int capacity = Plugin.GetBattleBaseCourierCount();
                     _systems[planetId][battleBaseId] = new BaseLogisticSystem
                     {
                         battleBaseId = battleBaseId,
-                        planetId = planetId
+                        planetId = planetId,
+                        couriers = new CourierData[capacity],
+                        idleCount = capacity,
+                        workingCount = 0
                     };
                 }
 
