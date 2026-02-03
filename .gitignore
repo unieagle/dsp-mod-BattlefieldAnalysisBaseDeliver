@@ -47,3 +47,6 @@ artifacts/
 # Build results
 [Dd]ebug/
 [Rr]elease/
+
+# Thunderstore package
+BattlefieldAnalysisBaseDeliver-*.zip
