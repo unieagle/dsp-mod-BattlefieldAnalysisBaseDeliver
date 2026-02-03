@@ -38,11 +38,32 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 if (couriersArrField == null) return;
 
                 CourierData[]? couriersArr = couriersArrField.GetValue(__instance) as CourierData[];
-                if (couriersArr == null) return;
 
                 // 获取所有基站的物流系统
                 var baseLogistics = BattleBaseLogisticsManager.GetAllForPlanet(planetId);
-                
+
+                // 游戏尚未初始化渲染数组时（例如本星球没有任何配送器无人机）：仅在有基站无人机要画时用 Expand2x 初始化一次
+                if (couriersArr == null)
+                {
+                    bool hasAnyBaseCourier = false;
+                    foreach (var logistics in baseLogistics)
+                    {
+                        for (int i = 0; i < logistics.couriers.Length; i++)
+                        {
+                            if (logistics.couriers[i].maxt > 0f)
+                            {
+                                hasAnyBaseCourier = true;
+                                break;
+                            }
+                        }
+                        if (hasAnyBaseCourier) break;
+                    }
+                    if (!hasAnyBaseCourier) return;
+                    ExpandCouriersArray(__instance);
+                    couriersArr = couriersArrField.GetValue(__instance) as CourierData[];
+                    if (couriersArr == null) return;
+                }
+
                 int addedCouriers = 0;
 
                 foreach (var logistics in baseLogistics)
