@@ -1,6 +1,6 @@
 {
     "name": "BattlefieldAnalysisBaseDeliver",
-    "version_number": "2.1.1",
+    "version_number": "2.1.2",
     "website_url": "https://github.com/unieagle/dsp-mod-BattlefieldAnalysisBaseDeliver",
     "description": "Allow battlefield analysis base to deliver items to mech, courier, and logistic tower.",
     "dependencies": []

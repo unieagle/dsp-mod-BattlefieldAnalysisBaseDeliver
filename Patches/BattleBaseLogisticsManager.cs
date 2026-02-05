@@ -216,6 +216,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     // 只处理有筛选器的配送器
                     if (dispenser.filter <= 0) continue;
 
+                    // 滞留区有物品时不向该配送器送货，等游戏逻辑把滞留区清空后再配送
+                    if (dispenser.holdupItemCount > 0)
+                        continue;
+
                     // 检查基站是否有该物品
                     if (!baseInventory.ContainsKey(dispenser.filter) || baseInventory[dispenser.filter] <= 0)
                         continue;
@@ -555,7 +559,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
-        /// 获取配送器最大容量
+        /// 获取配送器「可接收自动货物的最大容量」：仅统计允许自动放入的格子数（size - bans）× 每格堆叠数。
+        /// 与游戏 InsertIntoStorage(useBan=true) 一致，避免箱子只开 1 格接收时被误判为 1/30 库存而高优先级不断送货导致滞留。
         /// </summary>
         private static int GetDispenserMaxStock(DispenserComponent dispenser)
         {
@@ -564,11 +569,18 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 if (dispenser.storage?.bottomStorage == null) return 0;
 
                 var storage = dispenser.storage.bottomStorage;
-                var gridsField = storage.GetType().GetField("grids");
-                if (gridsField?.GetValue(storage) is not Array grids) return 0;
+                if (storage is not StorageComponent sc) return 0;
 
-                // 假设每格1000（实际应该从物品配置获取，但简化处理）
-                return grids.Length * 1000;
+                int size = sc.size;
+                int bans = sc.bans;
+                int receivableSlots = Math.Max(0, size - bans);
+                if (receivableSlots == 0) return 0;
+
+                int stackSize = 1000;
+                var itemProto = LDB.items.Select(dispenser.filter);
+                if (itemProto != null) stackSize = itemProto.StackSize;
+
+                return receivableSlots * stackSize;
             }
             catch
             {
