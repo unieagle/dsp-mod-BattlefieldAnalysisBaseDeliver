@@ -162,6 +162,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 float deltaT = courierSpeed * 0.016666668f; // 1帧的移动距离
 
                 Vector3 basePos = factory.entityPool[battleBase.entityId].pos;
+                basePos.z += BaseLogisticSystem.DRONE_AT_BASE_HEIGHT_OFFSET;
                 Vector3? playerPosNullable = GameMain.mainPlayer != null ? GameMain.mainPlayer.position : (Vector3?)null;
 
                 for (int i = 0; i < logistics.couriers.Length; i++)

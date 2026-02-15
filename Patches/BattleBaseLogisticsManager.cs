@@ -27,6 +27,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         // 派遣冷却（避免频繁派遣，每60帧=1秒检查一次）
         public int cooldownCounter = 0;
         public const int DISPATCH_INTERVAL = 60;
+        /// <summary> 无人机在基站端的高度偏移（相对基站 entity.pos.z），单位米 </summary>
+        public const float DRONE_AT_BASE_HEIGHT_OFFSET = 7.5f;
     }
 
     /// <summary>
@@ -489,7 +491,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
             Vector3 basePosition = Vector3.zero;
             if (entityId >= 0 && factory.entityPool != null && entityId < factory.entityPool.Length)
+            {
                 basePosition = factory.entityPool[entityId].pos;
+                basePosition.z += BaseLogisticSystem.DRONE_AT_BASE_HEIGHT_OFFSET;
+            }
 
             var mechaDemands = ScanMechaDemands(factory, basePosition, currentInventory);
             var stationDemands = ScanStationDemands(factory, basePosition, currentInventory);
