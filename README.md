@@ -3,6 +3,7 @@
 ## 简介
 
 本 Mod 让**战场分析基站**能够**直接派遣无人机**向**机甲**和**物流配送器**和**物流塔**配送战利品，实现全自动化战利品物流。
+并且在有库存的时候给星际物流塔自动送空间翘曲器。
 
 ### ✨ 核心特性
 
@@ -22,6 +23,29 @@
 1. 机甲：在配送栏设置了物品需求；
 2. 配送器：设置了物品需求；
 3. 物流塔：行星或者星际，设置了物品本地需求；
+4. 星际物流塔：在有库存的时候自动送空间翘曲器。
+
+## English
+
+This mod enables **Battlefield Analysis Bases** to **dispatch drones** to deliver loot to the **Mecha**, **Logistic Dispensers**, and **Logistic Stations**, automating loot logistics. It also automatically delivers **Space Warpers** to interstellar logistics stations when the base has them in stock.
+
+### ✨ Features
+
+- 🚀 **Direct dispatch from bases**: Each base has 20 double-speed drones (configurable)
+- 📦 **Smart priority**: Prioritizes dispensers with low stock
+- ✈️ **Full flight visuals**: Drones are visible with complete animations
+- 💾 **Save-safe**: Compatible with older saves, supports seamless upgrades
+- 🎯 **No performance cost**: Event-driven, runs only when needed
+- 🔧 **No UI changes**: Does not modify any UI
+
+### Usage
+
+After defeating enemies, Battlefield Analysis Bases accumulate loot (silicium, crystal silicon, circuit boards, etc.). With this mod, bases automatically send drones to:
+
+1. **Mecha**: Delivery slots with item demand set
+2. **Dispensers**: Slots with item demand set
+3. **Logistic stations**: Planetary or interstellar, with local demand set
+4. **Interstellar logistics stations**: Automatically supplied with Space Warpers when the base has stock
 
 ---
 

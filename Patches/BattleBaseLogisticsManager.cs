@@ -363,6 +363,38 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             distance = distance
                         });
                     }
+
+                    // 星际物流塔：若基站有空间翘曲器，且塔的 warper 未满，则生成翘曲器需求（itemId=1210 不进 storage，走 warperCount）
+                    const int ITEMID_WARPER = 1210;
+                    if (station.isStellar && station.warperMaxCount > 0 && station.warperCount < station.warperMaxCount
+                        && baseInventory.TryGetValue(ITEMID_WARPER, out int warperStock) && warperStock > 0)
+                    {
+                        Vector3 stationPosW = Vector3.zero;
+                        if (station.entityId > 0 && station.entityId < entityPool.Length)
+                        {
+                            var entity = entityPool[station.entityId];
+                            if (entity.id > 0)
+                                stationPosW = entity.pos;
+                        }
+                        int needWarper = station.warperMaxCount - station.warperCount;
+                        float distanceW = Vector3.Distance(basePosition, stationPosW);
+                        float urgencyW = station.warperMaxCount > 0 ? (float)station.warperCount / station.warperMaxCount : 1f;
+                        demands.Add(new DispenserDemand
+                        {
+                            IsStationTower = true,
+                            stationId = station.id,
+                            dispenserId = 0,
+                            entityId = station.entityId,
+                            storageId = 0,
+                            itemId = ITEMID_WARPER,
+                            currentStock = station.warperCount,
+                            maxStock = station.warperMaxCount,
+                            needCount = needWarper,
+                            urgency = urgencyW,
+                            position = stationPosW,
+                            distance = distanceW
+                        });
+                    }
                 }
 
                 demands.Sort((a, b) =>

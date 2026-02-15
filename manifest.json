@@ -1,7 +1,7 @@
 {
     "name": "BattlefieldAnalysisBaseDeliver",
-    "version_number": "2.1.3",
+    "version_number": "3.0.0",
     "website_url": "https://github.com/unieagle/dsp-mod-BattlefieldAnalysisBaseDeliver",
-    "description": "Allow battlefield analysis base to deliver items to mech, courier, and logistic tower.",
+    "description": "Allow battlefield analysis base to deliver items to mech, courier, and logistic tower. Automatically deliver space warpers to interstellar logistic tower when the base has stock.",
     "dependencies": []
 }

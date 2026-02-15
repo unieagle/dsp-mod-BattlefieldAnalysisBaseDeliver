@@ -68,7 +68,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 int itemId = demand.itemId;
                 int maxAmount = 100; // 无人机容量（可以从配置读取）
-                if (demand.IsMechaSlot && demand.needCount > 0 && demand.needCount < maxAmount)
+                // 机甲槽位或物流塔翘曲器需求：按 needCount 上限派遣，避免多送
+                if (demand.needCount > 0 && demand.needCount < maxAmount)
                     maxAmount = demand.needCount;
 
                 int beforeAmount = currentInventory.ContainsKey(itemId) ? currentInventory[itemId] : 0;
@@ -424,7 +425,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
-        /// 送货到物流塔：调用 StationComponent.AddItem，仅会写入已配置该物品的槽位（本地需求槽位）。
+        /// 送货到物流塔：普通物品走 StationComponent.AddItem（仅写入已配置的本地需求槽位）；
+        /// 空间翘曲器(itemId=1210) 不进 storage，直接增加 station.warperCount（仅星际塔且 warperMaxCount&gt;0 时有效）。
         /// </summary>
         private static bool DeliverToStation(PlanetFactory factory, int stationId, int itemId, int count, int inc)
         {
@@ -435,6 +437,17 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 StationComponent? station = factory.transport.GetStationComponent(stationId);
                 if (station == null || station.id != stationId) return false;
+
+                const int ITEMID_WARPER = 1210;
+                if (itemId == ITEMID_WARPER)
+                {
+                    if (!station.isStellar || station.warperMaxCount <= 0) return false;
+                    int space = station.warperMaxCount - station.warperCount;
+                    if (space <= 0) return false;
+                    int add = Math.Min(count, space);
+                    station.warperCount += add;
+                    return add > 0;
+                }
 
                 int added = station.AddItem(itemId, count, inc);
                 return added > 0;
