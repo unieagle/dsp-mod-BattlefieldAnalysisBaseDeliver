@@ -134,9 +134,12 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                 if (Plugin.DebugLog())
                 {
+                    var entity = factory.entityPool[battleBase.entityId];
+                    Quaternion q = entity.rot;
+                    Vector3 euler = q.eulerAngles;
                     string itemName = GetItemName(itemId);
                     string targetDesc = demand.IsMechaSlot ? $"机甲槽位[{demand.slotIndex}]" : (demand.IsStationTower ? $"物流塔[{demand.stationId}]" : $"配送器[{demand.dispenserId}]");
-                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 派遣无人机: 基站[{battleBase.id}] → {targetDesc} 物品={itemName}(ID:{itemId}) 派遣={actualAmount} 剩余={afterAmount} 紧急度={demand.urgency:F2}");
+                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 派遣: 基站[{battleBase.id}] → {targetDesc} 物品={itemName}(ID:{itemId}) 派遣={actualAmount} 剩余={afterAmount} 紧急度={demand.urgency:F2} | 基站pos=({entity.pos.x:F2},{entity.pos.y:F2},{entity.pos.z:F2}) mag={entity.pos.magnitude:F2} rot=({q.x:F4},{q.y:F4},{q.z:F4},{q.w:F4}) 欧拉=({euler.x:F1},{euler.y:F1},{euler.z:F1})°");
                 }
 
                 return true;
@@ -162,8 +165,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 courierSpeed *= Plugin.GetBattleBaseCourierSpeedMultiplier();
                 float deltaT = courierSpeed * 0.016666668f; // 1帧的移动距离
 
-                Vector3 basePos = factory.entityPool[battleBase.entityId].pos;
-                basePos.z += BaseLogisticSystem.DRONE_AT_BASE_HEIGHT_OFFSET;
+                var entity = factory.entityPool[battleBase.entityId];
+                Vector3 up = entity.pos.sqrMagnitude < 1E-6f ? Vector3.up : entity.pos.normalized;
+                Vector3 basePos = entity.pos + up * BaseLogisticSystem.DRONE_AT_BASE_HEIGHT_OFFSET;
                 Vector3? playerPosNullable = GameMain.mainPlayer != null ? GameMain.mainPlayer.position : (Vector3?)null;
 
                 for (int i = 0; i < logistics.couriers.Length; i++)
