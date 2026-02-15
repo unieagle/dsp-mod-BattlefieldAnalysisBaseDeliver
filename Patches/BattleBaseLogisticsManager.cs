@@ -128,6 +128,29 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             }
         }
 
+        /// <summary> 物流塔目标时 endId = STATION_ENDID_OFFSET + stationId，与 Patch 中一致。 </summary>
+        private const int STATION_ENDID_OFFSET = 20000;
+        private const int ITEMID_WARPER = 1210;
+
+        /// <summary>
+        /// 本星球是否有任意无人机正在往该星际塔送翘曲器（去程在途）。
+        /// </summary>
+        public static bool HasWarperCourierInTransitToStation(int planetId, int stationId)
+        {
+            int targetEndId = STATION_ENDID_OFFSET + stationId;
+            foreach (var logistics in GetAllForPlanet(planetId))
+            {
+                if (logistics.couriers == null) continue;
+                for (int i = 0; i < logistics.couriers.Length; i++)
+                {
+                    ref readonly var c = ref logistics.couriers[i];
+                    if (c.maxt <= 0f || c.direction <= 0f) continue;
+                    if (c.itemId == ITEMID_WARPER && c.endId == targetEndId) return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// 清理星球数据
         /// </summary>
@@ -364,11 +387,12 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         });
                     }
 
-                    // 星际物流塔：若基站有空间翘曲器，且塔的 warper 未满，则生成翘曲器需求（itemId=1210 不进 storage，走 warperCount）
-                    const int ITEMID_WARPER = 1210;
+                    // 星际物流塔：数量满足且当前没有任何无人机在往该塔送翘曲器时，才生成翘曲器需求
                     if (station.isStellar && station.warperMaxCount > 0 && station.warperCount < station.warperMaxCount
-                        && baseInventory.TryGetValue(ITEMID_WARPER, out int warperStock) && warperStock > 0)
+                        && baseInventory.TryGetValue(ITEMID_WARPER, out int warperStock) && warperStock > 0
+                        && !HasWarperCourierInTransitToStation(factory.planetId, station.id))
                     {
+                        int needWarper = station.warperMaxCount - station.warperCount;
                         Vector3 stationPosW = Vector3.zero;
                         if (station.entityId > 0 && station.entityId < entityPool.Length)
                         {
@@ -376,7 +400,6 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             if (entity.id > 0)
                                 stationPosW = entity.pos;
                         }
-                        int needWarper = station.warperMaxCount - station.warperCount;
                         float distanceW = Vector3.Distance(basePosition, stationPosW);
                         float urgencyW = station.warperMaxCount > 0 ? (float)station.warperCount / station.warperMaxCount : 1f;
                         demands.Add(new DispenserDemand
