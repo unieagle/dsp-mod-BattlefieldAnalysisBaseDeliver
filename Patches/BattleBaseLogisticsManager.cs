@@ -57,6 +57,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public bool IsStationTower;
         /// <summary> 物流塔在 PlanetTransport.stationPool 中的 id，仅当 IsStationTower 时有效 </summary>
         public int stationId;
+        /// <summary> 仅当 IsStationTower 且 itemId=翘曲器 时有效：true=送往塔的翘曲器小存储点(warperCount)，false=送往槽位(storage) </summary>
+        public bool IsWarperStorageDemand;
     }
 
     /// <summary>
@@ -406,6 +408,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         {
                             IsStationTower = true,
                             stationId = station.id,
+                            IsWarperStorageDemand = true,
                             dispenserId = 0,
                             entityId = station.entityId,
                             storageId = 0,
@@ -559,13 +562,18 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             demands.AddRange(mechaDemands);
             demands.AddRange(stationDemands);
             demands.AddRange(dispenserDemands);
-            // 优先顺序：机甲 > 物流塔 > 配送器，同类型内按紧急度、距离
+            // 优先顺序：机甲 > 物流塔 > 配送器；同物流塔且均为翘曲器时，先小存储点(warperCount)再槽位(slot)
             demands.Sort((a, b) =>
             {
                 int priorityA = a.IsMechaSlot ? 0 : (a.IsStationTower ? 1 : 2);
                 int priorityB = b.IsMechaSlot ? 0 : (b.IsStationTower ? 1 : 2);
                 int pri = priorityA.CompareTo(priorityB);
                 if (pri != 0) return pri;
+                if (a.IsStationTower && b.IsStationTower && a.stationId == b.stationId && a.itemId == ITEMID_WARPER && b.itemId == ITEMID_WARPER)
+                {
+                    if (a.IsWarperStorageDemand != b.IsWarperStorageDemand)
+                        return a.IsWarperStorageDemand ? -1 : 1;
+                }
                 int c = a.urgency.CompareTo(b.urgency);
                 if (c != 0) return c;
                 return a.distance.CompareTo(b.distance);

@@ -208,11 +208,26 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         else if (courier.endId >= STATION_ENDID_OFFSET)
                         {
                             int stationId = courier.endId - STATION_ENDID_OFFSET;
-                            delivered = DeliverToStation(factory, stationId, courier.itemId, courier.itemCount, courier.inc);
-                            if (Plugin.DebugLog() && delivered)
+                            int accepted = DeliverToStation(factory, stationId, courier.itemId, courier.itemCount, courier.inc);
+                            delivered = (accepted >= courier.itemCount);
+                            if (accepted > 0)
                             {
-                                string itemName = GetItemName(courier.itemId);
-                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 物流塔[{stationId}] 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
+                                if (Plugin.DebugLog())
+                                {
+                                    string itemName = GetItemName(courier.itemId);
+                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📬 送货成功: 物流塔[{stationId}] 物品={itemName}(ID:{courier.itemId})x{accepted}" + (accepted < courier.itemCount ? $" 剩余{courier.itemCount - accepted}返还" : ""));
+                                }
+                                if (accepted >= courier.itemCount)
+                                {
+                                    courier.itemId = 0;
+                                    courier.itemCount = 0;
+                                    courier.inc = 0;
+                                }
+                                else
+                                {
+                                    courier.itemCount -= accepted;
+                                    courier.inc = 0;
+                                }
                             }
                         }
                         else
@@ -429,37 +444,39 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
-        /// 送货到物流塔：普通物品走 StationComponent.AddItem（仅写入已配置的本地需求槽位）；
-        /// 空间翘曲器(itemId=1210) 不进 storage，直接增加 station.warperCount（仅星际塔且 warperMaxCount&gt;0 时有效）。
+        /// 送货到物流塔：普通物品走 StationComponent.AddItem（仅写入已配置的本地需求槽位）。
+        /// 空间翘曲器(itemId=1210)：先填满塔的翘曲器小存储点(warperCount)，剩余再写入已配置翘曲器的槽位(storage)。
+        /// 返回实际接受的数量，0 表示失败或无法放入。
         /// </summary>
-        private static bool DeliverToStation(PlanetFactory factory, int stationId, int itemId, int count, int inc)
+        private static int DeliverToStation(PlanetFactory factory, int stationId, int itemId, int count, int inc)
         {
             try
             {
-                if (factory?.transport == null) return false;
-                if (stationId <= 0) return false;
+                if (factory?.transport == null) return 0;
+                if (stationId <= 0) return 0;
 
                 StationComponent? station = factory.transport.GetStationComponent(stationId);
-                if (station == null || station.id != stationId) return false;
+                if (station == null || station.id != stationId) return 0;
 
                 const int ITEMID_WARPER = 1210;
                 if (itemId == ITEMID_WARPER)
                 {
-                    if (!station.isStellar || station.warperMaxCount <= 0) return false;
-                    int space = station.warperMaxCount - station.warperCount;
-                    if (space <= 0) return false;
-                    int add = Math.Min(count, space);
-                    station.warperCount += add;
-                    return add > 0;
+                    if (!station.isStellar || station.warperMaxCount <= 0) return 0;
+                    int toWarper = Math.Min(count, Math.Max(0, station.warperMaxCount - station.warperCount));
+                    station.warperCount += toWarper;
+                    int remainder = count - toWarper;
+                    if (remainder <= 0)
+                        return toWarper;
+                    int toSlot = station.AddItem(ITEMID_WARPER, remainder, inc);
+                    return toWarper + toSlot;
                 }
 
-                int added = station.AddItem(itemId, count, inc);
-                return added > 0;
+                return station.AddItem(itemId, count, inc);
             }
             catch (Exception ex)
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToStation 异常: {ex.Message}\n{ex.StackTrace}");
-                return false;
+                return 0;
             }
         }
 
