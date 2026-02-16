@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.1.4] - 2026-02-15
+
+### Changed
+- 打包 zip 包含根目录 `CHANGELOG.md`，Thunderstore 可显示更新说明。
+
 ## [3.1.3] - 2026-02-15
 
 ### Added

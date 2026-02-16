@@ -1,4 +1,4 @@
-# 将 manifest.json、README.md、icon.png 和 Release 构建的 DLL 打包成 zip
+# 将 manifest.json、README.md、CHANGELOG.md、icon.png 和 Release 构建的 DLL 打包成 zip（Thunderstore 需根目录 CHANGELOG.md 才显示更新说明）
 # 用法: .\pack-mod.ps1  或  .\pack-mod.ps1 -OutputDir ".\dist"
 
 param(
@@ -12,6 +12,7 @@ Set-Location $scriptDir
 $dllName = "BattlefieldAnalysisBaseDeliver.dll"
 $manifestPath = Join-Path $scriptDir "manifest.json"
 $readmePath = Join-Path $scriptDir "README.md"
+$changelogPath = Join-Path $scriptDir "CHANGELOG.md"
 $iconPath = Join-Path $scriptDir "icon.png"
 $binRelease = Join-Path $scriptDir "bin\Release"
 
@@ -51,6 +52,9 @@ New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 try {
     Copy-Item $manifestPath (Join-Path $tempDir "manifest.json") -Force
     Copy-Item $readmePath (Join-Path $tempDir "README.md") -Force
+    if (Test-Path $changelogPath) {
+        Copy-Item $changelogPath (Join-Path $tempDir "CHANGELOG.md") -Force
+    }
     if (Test-Path $iconPath) {
         Copy-Item $iconPath (Join-Path $tempDir "icon.png") -Force
     }
