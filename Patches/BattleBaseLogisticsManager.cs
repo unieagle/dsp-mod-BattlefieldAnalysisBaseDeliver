@@ -154,6 +154,45 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
+        /// 本星球所有基站中，正在飞往指定配送器且携带指定物品的在途数量（用于目标配送器 UI 显示「即将收到」）。
+        /// 仅统计 endId 为配送器 id（非物流塔、非机甲）且去程飞行中（maxt &gt; 0, direction &gt; 0）的无人机携带量之和。
+        /// </summary>
+        public static int GetIncomingToDispenser(int planetId, int dispenserId, int itemId)
+        {
+            if (dispenserId <= 0 || itemId <= 0) return 0;
+            int sum = 0;
+            foreach (var logistics in GetAllForPlanet(planetId))
+            {
+                if (logistics.couriers == null) continue;
+                for (int i = 0; i < logistics.couriers.Length; i++)
+                {
+                    ref readonly var c = ref logistics.couriers[i];
+                    if (c.maxt <= 0f || c.direction <= 0f) continue;
+                    if (c.endId != dispenserId || c.itemId != itemId) continue;
+                    sum += c.itemCount;
+                }
+            }
+            return sum;
+        }
+
+        /// <summary>
+        /// 从工厂的 transport.dispenserPool 获取配送器组件，供派遣/送达/存档时维护 storageOrdered 使用。
+        /// </summary>
+        public static DispenserComponent? GetDispenser(PlanetFactory factory, int dispenserId)
+        {
+            if (factory?.transport == null || dispenserId <= 0) return null;
+            var transport = factory.transport;
+            var dispenserPoolField = transport.GetType().GetField("dispenserPool",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (dispenserPoolField == null) return null;
+            var dispenserPool = dispenserPoolField.GetValue(transport) as Array;
+            if (dispenserPool == null || dispenserId >= dispenserPool.Length) return null;
+            var dispenserObj = dispenserPool.GetValue(dispenserId);
+            var dispenser = dispenserObj as DispenserComponent;
+            return (dispenser != null && dispenser.id == dispenserId) ? dispenser : null;
+        }
+
+        /// <summary>
         /// 清理星球数据
         /// </summary>
         public static void Clear(int planetId)

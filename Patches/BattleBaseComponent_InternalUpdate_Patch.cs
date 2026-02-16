@@ -132,6 +132,21 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 logistics.idleCount--;
                 logistics.workingCount++;
 
+                // 机甲配送槽位：与原生一致，更新在途数量，使 UI 显示「即将收到」
+                if (demand.IsMechaSlot)
+                {
+                    var pkg = GameMain.mainPlayer?.deliveryPackage;
+                    if (pkg?.grids != null && demand.slotIndex >= 0 && demand.slotIndex < pkg.grids.Length)
+                        pkg.grids[demand.slotIndex].ordered += actualAmount;
+                }
+                // 配送器目标：与原生一致，更新目标配送器 storageOrdered，使原生 UI 在途显示生效
+                else if (!demand.IsStationTower && demand.dispenserId > 0)
+                {
+                    var targetDispenser = BattleBaseLogisticsManager.GetDispenser(factory, demand.dispenserId);
+                    if (targetDispenser != null)
+                        targetDispenser.storageOrdered += actualAmount;
+                }
+
                 if (Plugin.DebugLog())
                 {
                     var entity = factory.entityPool[battleBase.entityId];
@@ -199,6 +214,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             // 送往机甲配送栏：slotIndex = -(endId+1)
                             int slotIndex = -(courier.endId + 1);
                             delivered = DeliverToMecha(slotIndex, courier.itemId, courier.itemCount, courier.inc);
+                            // 在途数量：到达后从该槽位 ordered 扣减（与派遣时增加对应，无论是否成功放入）
+                            var pkg = GameMain.mainPlayer?.deliveryPackage;
+                            if (pkg?.grids != null && slotIndex >= 0 && slotIndex < pkg.grids.Length)
+                                pkg.grids[slotIndex].ordered -= courier.itemCount;
                             if (Plugin.DebugLog() && delivered)
                             {
                                 string itemName = GetItemName(courier.itemId);
@@ -233,6 +252,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         else
                         {
                             delivered = DeliverToDispenser(factory, courier.endId, courier.itemId, courier.itemCount, courier.inc);
+                            // 配送器在途：到达后扣减目标 storageOrdered（与派遣时增加对应，无论是否成功放入）
+                            var targetDispenser = BattleBaseLogisticsManager.GetDispenser(factory, courier.endId);
+                            if (targetDispenser != null)
+                                targetDispenser.storageOrdered -= courier.itemCount;
                             if (Plugin.DebugLog() && delivered)
                             {
                                 string itemName = GetItemName(courier.itemId);

@@ -44,6 +44,22 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                             totalCouriers++;
 
+                            // 若目标为机甲配送槽位，扣减在途数量（与派遣时增加对应），否则存档后 UI 会多算在途
+                            if (courier.endId < 0)
+                            {
+                                int slotIndex = -(courier.endId + 1);
+                                var pkg = GameMain.mainPlayer?.deliveryPackage;
+                                if (pkg?.grids != null && slotIndex >= 0 && slotIndex < pkg.grids.Length)
+                                    pkg.grids[slotIndex].ordered -= courier.itemCount;
+                            }
+                            // 若目标为配送器，扣减该配送器 storageOrdered（与派遣时增加对应）
+                            else if (courier.endId > 0 && courier.endId < 20000)
+                            {
+                                var targetDispenser = BattleBaseLogisticsManager.GetDispenser(factory, courier.endId);
+                                if (targetDispenser != null)
+                                    targetDispenser.storageOrdered -= courier.itemCount;
+                            }
+
                             // 如果无人机携带物品，返还到基站（必须成功，否则会造成物品丢失）
                             bool itemReturned = false;
                             if (courier.itemId > 0 && courier.itemCount > 0)
