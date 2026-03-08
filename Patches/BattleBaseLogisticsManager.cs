@@ -290,12 +290,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     if (!baseInventory.ContainsKey(dispenser.filter) || baseInventory[dispenser.filter] <= 0)
                         continue;
 
-                    // 获取配送器的当前库存
+                    // 获取配送器的当前库存与在途数量（含游戏原生 + 本 mod 派遣的在途）
                     int currentStock = GetDispenserStock(dispenser, dispenser.filter);
                     int maxStock = GetDispenserMaxStock(dispenser);
+                    int incoming = Math.Max(0, dispenser.storageOrdered);
 
-                    // 如果库存充足（>80%），跳过
-                    if (maxStock > 0 && (float)currentStock / maxStock > 0.8f)
+                    // 只有「当前 + 在途」已满（连接箱堆无空位）才跳过；未满则视为有需求
+                    if (maxStock > 0 && currentStock + incoming >= maxStock)
                         continue;
 
                     // 获取位置
@@ -312,8 +313,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                     float distance = Vector3.Distance(basePosition, position);
 
-                    // 计算紧急度（0=最紧急，1=不紧急）
-                    float urgency = maxStock > 0 ? (float)currentStock / maxStock : 1f;
+                    // 计算紧急度（0=最紧急，1=不紧急）；考虑在途，避免已派很多在途的仍排最前
+                    float urgency = maxStock > 0 ? (float)(currentStock + incoming) / maxStock : 1f;
 
                     // 获取存储ID
                     int storageId = 0;
@@ -628,7 +629,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
-        /// 获取配送器当前库存
+        /// 获取配送器当前库存（遍历整条堆叠链：配送器下方 1 到多个箱子的该物品数量总和）
         /// </summary>
         private static int GetDispenserStock(DispenserComponent dispenser, int itemId)
         {
@@ -636,26 +637,33 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 if (dispenser.storage?.bottomStorage == null) return 0;
 
-                var storage = dispenser.storage.bottomStorage;
-                var gridsField = storage.GetType().GetField("grids");
-                if (gridsField?.GetValue(storage) is not Array grids) return 0;
+                var storageType = dispenser.storage.bottomStorage.GetType();
+                var gridsField = storageType.GetField("grids", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var nextStorageField = storageType.GetField("nextStorage", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (gridsField == null) return 0;
 
                 int totalCount = 0;
-                for (int i = 0; i < grids.Length; i++)
+                object? current = dispenser.storage.bottomStorage;
+                while (current != null)
                 {
-                    object? grid = grids.GetValue(i);
-                    if (grid == null) continue;
-
-                    var gridItemIdField = grid.GetType().GetField("itemId");
-                    var gridCountField = grid.GetType().GetField("count");
-
-                    int gridItemId = gridItemIdField != null ? (int)gridItemIdField.GetValue(grid)! : 0;
-                    int gridCount = gridCountField != null ? (int)gridCountField.GetValue(grid)! : 0;
-
-                    if (gridItemId == itemId)
+                    if (gridsField.GetValue(current) is Array grids)
                     {
-                        totalCount += gridCount;
+                        for (int i = 0; i < grids.Length; i++)
+                        {
+                            object? grid = grids.GetValue(i);
+                            if (grid == null) continue;
+
+                            var gridItemIdField = grid.GetType().GetField("itemId");
+                            var gridCountField = grid.GetType().GetField("count");
+
+                            int gridItemId = gridItemIdField != null ? (int)gridItemIdField.GetValue(grid)! : 0;
+                            int gridCount = gridCountField != null ? (int)gridCountField.GetValue(grid)! : 0;
+
+                            if (gridItemId == itemId)
+                                totalCount += gridCount;
+                        }
                     }
+                    current = nextStorageField?.GetValue(current) as object;
                 }
 
                 return totalCount;
@@ -667,8 +675,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
-        /// 获取配送器「可接收自动货物的最大容量」：仅统计允许自动放入的格子数（size - bans）× 每格堆叠数。
-        /// 与游戏 InsertIntoStorage(useBan=true) 一致，避免箱子只开 1 格接收时被误判为 1/30 库存而高优先级不断送货导致滞留。
+        /// 获取配送器「可接收自动货物的最大容量」：遍历整条堆叠链（1 到多个箱子），
+        /// 汇总每箱允许自动放入的格子数（size - bans）× 每格堆叠数。与游戏 InsertIntoStorage(useBan=true) 一致。
         /// </summary>
         private static int GetDispenserMaxStock(DispenserComponent dispenser)
         {
@@ -676,19 +684,29 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 if (dispenser.storage?.bottomStorage == null) return 0;
 
-                var storage = dispenser.storage.bottomStorage;
-                if (storage is not StorageComponent sc) return 0;
+                var storageType = dispenser.storage.bottomStorage.GetType();
+                var sizeField = storageType.GetField("size", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var bansField = storageType.GetField("bans", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var nextStorageField = storageType.GetField("nextStorage", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (sizeField == null || bansField == null) return 0;
 
-                int size = sc.size;
-                int bans = sc.bans;
-                int receivableSlots = Math.Max(0, size - bans);
-                if (receivableSlots == 0) return 0;
+                int totalReceivableSlots = 0;
+                object? current = dispenser.storage.bottomStorage;
+                while (current != null)
+                {
+                    int size = sizeField.GetValue(current) is int s ? s : 0;
+                    int bans = bansField.GetValue(current) is int b ? b : 0;
+                    totalReceivableSlots += Math.Max(0, size - bans);
+                    current = nextStorageField?.GetValue(current) as object;
+                }
+
+                if (totalReceivableSlots == 0) return 0;
 
                 int stackSize = 1000;
                 var itemProto = LDB.items.Select(dispenser.filter);
                 if (itemProto != null) stackSize = itemProto.StackSize;
 
-                return receivableSlots * stackSize;
+                return totalReceivableSlots * stackSize;
             }
             catch
             {
