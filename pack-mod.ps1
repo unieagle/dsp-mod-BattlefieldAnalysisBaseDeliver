@@ -16,11 +16,19 @@ $changelogPath = Join-Path $scriptDir "CHANGELOG.md"
 $iconPath = Join-Path $scriptDir "icon.png"
 $binRelease = Join-Path $scriptDir "bin\Release"
 
+# 先执行 Release 构建，确保打包使用最新 DLL
+Write-Host "正在执行 Release 构建: dotnet build -c Release" -ForegroundColor Cyan
+& dotnet build -c Release -p:SkipPostBuild=true --nologo -v q
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Release 构建失败，请检查项目后重试"
+    exit 1
+}
+
 # 查找 DLL（支持 bin\Release\net472\ 等任意子目录）
 $dllPath = Get-ChildItem -Path $binRelease -Filter $dllName -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
 
 if (-not $dllPath) {
-    Write-Error "未找到 $dllName，请先执行 Release 构建: dotnet build -c Release"
+    Write-Error "未找到 $dllName（构建后仍未找到，请检查 csproj 输出路径）"
     exit 1
 }
 

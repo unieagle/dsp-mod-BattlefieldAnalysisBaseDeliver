@@ -59,6 +59,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public int stationId;
         /// <summary> 仅当 IsStationTower 且 itemId=翘曲器 时有效：true=送往塔的翘曲器小存储点(warperCount)，false=送往槽位(storage) </summary>
         public bool IsWarperStorageDemand;
+        /// <summary> 物流塔 station.storage 的槽位索引，仅当 IsStationTower 且非翘曲器小格时有效，用于维护 localOrder </summary>
+        public int StationStorageIndex;
     }
 
     /// <summary>
@@ -190,6 +192,25 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             var dispenserObj = dispenserPool.GetValue(dispenserId);
             var dispenser = dispenserObj as DispenserComponent;
             return (dispenser != null && dispenser.id == dispenserId) ? dispenser : null;
+        }
+
+        /// <summary>
+        /// 扣减物流塔指定物品槽位的 localOrder（用于到达/返还/存档时与派遣时增加的 localOrder 对应）。
+        /// 按 itemId 查找该塔第一个匹配的 storage 槽位并扣减，仅支持普通槽位（非翘曲器小格）。
+        /// </summary>
+        public static void DecrementStationSlotLocalOrder(PlanetFactory factory, int stationId, int itemId, int amount)
+        {
+            if (factory?.transport == null || stationId <= 0 || itemId <= 0 || amount <= 0) return;
+            StationComponent? station = factory.transport.GetStationComponent(stationId);
+            if (station?.storage == null) return;
+            for (int k = 0; k < station.storage.Length; k++)
+            {
+                if (station.storage[k].itemId == itemId)
+                {
+                    station.storage[k].localOrder -= amount;
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -417,6 +438,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         {
                             IsStationTower = true,
                             stationId = station.id,
+                            StationStorageIndex = k,
                             dispenserId = 0,
                             entityId = station.entityId,
                             storageId = 0,

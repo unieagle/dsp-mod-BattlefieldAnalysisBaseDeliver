@@ -59,6 +59,12 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                                 if (targetDispenser != null)
                                     targetDispenser.storageOrdered -= courier.itemCount;
                             }
+                            // 若目标为物流塔，扣减该塔对应槽位 localOrder（与派遣时增加对应）
+                            else if (courier.endId >= 20000)
+                            {
+                                int stationId = courier.endId - 20000;
+                                BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, courier.itemCount);
+                            }
 
                             // 如果无人机携带物品，返还到基站（必须成功，否则会造成物品丢失）
                             bool itemReturned = false;

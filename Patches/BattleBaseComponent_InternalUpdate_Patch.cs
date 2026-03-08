@@ -146,6 +146,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     if (targetDispenser != null)
                         targetDispenser.storageOrdered += actualAmount;
                 }
+                // 物流塔普通槽位：与原生一致，更新目标槽位 localOrder，使物流塔 UI 在途显示生效
+                else if (demand.IsStationTower && !demand.IsWarperStorageDemand)
+                {
+                    var station = factory.transport.GetStationComponent(demand.stationId);
+                    if (station?.storage != null && demand.StationStorageIndex >= 0 && demand.StationStorageIndex < station.storage.Length)
+                        station.storage[demand.StationStorageIndex].localOrder += actualAmount;
+                }
 
                 if (Plugin.DebugLog())
                 {
@@ -227,8 +234,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         else if (courier.endId >= STATION_ENDID_OFFSET)
                         {
                             int stationId = courier.endId - STATION_ENDID_OFFSET;
+                            int originalCount = courier.itemCount;
                             int accepted = DeliverToStation(factory, stationId, courier.itemId, courier.itemCount, courier.inc);
                             delivered = (accepted >= courier.itemCount);
+                            // 物流塔在途：到达后扣减对应槽位 localOrder（与派遣时增加对应，无论是否成功放入）
+                            BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, originalCount);
                             if (accepted > 0)
                             {
                                 if (Plugin.DebugLog())
@@ -285,6 +295,13 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     else if (courier.direction < 0f && courier.t <= 0f)
                     {
                         courier.t = 0f;
+
+                        // 若目标为物流塔且携带物品返还，先扣减该塔对应槽位 localOrder（与派遣时增加对应）
+                        if (courier.endId >= STATION_ENDID_OFFSET && courier.itemId > 0 && courier.itemCount > 0)
+                        {
+                            int stationId = courier.endId - STATION_ENDID_OFFSET;
+                            BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, courier.itemCount);
+                        }
 
                         // 如果无人机还携带物品，返还到基站
                         if (courier.itemId > 0 && courier.itemCount > 0)
