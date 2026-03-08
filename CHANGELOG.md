@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.1.7] - 2026-03-08
+
+### Fixed
+- **配送器送货目标错误**：修复向需求配送器送货时物品被放入错误箱子的问题。原因：`InsertIntoStorage` 第一个参数应为箱子的**实体 ID (entityId)**，之前误传了 storage 池的 **id**，导致游戏按错误实体查找存储链。现改为使用 `dispenser.storage.bottomStorage.entityId`，物品只会进入该配送器连接的箱堆。
+
 ## [3.1.6] - 2026-03-08
 
 ### Added

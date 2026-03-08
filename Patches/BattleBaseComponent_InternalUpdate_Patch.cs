@@ -560,7 +560,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return false;
                 }
 
-                // 获取配送器的底部存储ID
+                // 获取配送器连接箱堆的底部箱子实体 ID（InsertIntoStorage 第一个参数是 entityId，不是 storage 池 id）
                 if (dispenser.storage?.bottomStorage == null)
                 {
                     if (Plugin.DebugLog())
@@ -568,18 +568,24 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return false;
                 }
 
-                var storageIdField = dispenser.storage.bottomStorage.GetType().GetField("id");
-                if (storageIdField == null)
+                var entityIdField = dispenser.storage.bottomStorage.GetType().GetField("entityId", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (entityIdField == null)
                 {
                     if (Plugin.DebugLog())
-                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: storageIdField 为 null");
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: entityIdField 为 null");
                     return false;
                 }
 
-                int storageId = (int)storageIdField.GetValue(dispenser.storage.bottomStorage)!;
+                int bottomEntityId = (int)entityIdField.GetValue(dispenser.storage.bottomStorage)!;
+                if (bottomEntityId <= 0)
+                {
+                    if (Plugin.DebugLog())
+                        Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] 送货失败: bottomStorage.entityId 无效");
+                    return false;
+                }
 
-                // 插入到配送器存储
-                int inserted = factory.InsertIntoStorage(storageId, itemId, count, inc, out int incOut, true);
+                // 插入到该配送器连接的箱堆（游戏内部用 entityId 查 storageId 并沿 nextStorage 链放入）
+                int inserted = factory.InsertIntoStorage(bottomEntityId, itemId, count, inc, out int incOut, true);
                 int remaining = count - inserted;
 
                 // 如果有物品未能插入，放到 holdupPackage 中（模拟游戏逻辑）
