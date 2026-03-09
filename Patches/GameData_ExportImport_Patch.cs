@@ -59,8 +59,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                                 if (targetDispenser != null)
                                     targetDispenser.storageOrdered -= courier.itemCount;
                             }
-                            // 若目标为物流塔，扣减该塔对应槽位 localOrder（与派遣时增加对应）
-                            else if (courier.endId >= 20000)
+                            // 若目标为物流塔普通槽位（20000~29999），扣减该塔对应槽位 localOrder
+                            // 翘曲器小格（30000+）在派遣时未增加 localOrder，无需扣减
+                            else if (courier.endId >= 20000 && courier.endId < 30000)
                             {
                                 int stationId = courier.endId - 20000;
                                 BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, courier.itemCount);

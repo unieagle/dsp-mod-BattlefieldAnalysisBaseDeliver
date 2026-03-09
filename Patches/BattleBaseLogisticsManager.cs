@@ -132,16 +132,19 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             }
         }
 
-        /// <summary> 物流塔目标时 endId = STATION_ENDID_OFFSET + stationId，与 Patch 中一致。 </summary>
+        /// <summary> 物流塔普通槽位：endId = STATION_ENDID_OFFSET + stationId </summary>
         private const int STATION_ENDID_OFFSET = 20000;
+        /// <summary> 物流塔翘曲器小格：endId = STATION_WARPER_STORAGE_ENDID_OFFSET + stationId </summary>
+        private const int STATION_WARPER_STORAGE_ENDID_OFFSET = 30000;
         private const int ITEMID_WARPER = 1210;
 
         /// <summary>
-        /// 本星球是否有任意无人机正在往该星际塔送翘曲器（去程在途）。
+        /// 本星球是否有任意无人机正在往该星际塔送翘曲器（去程在途，含普通槽位与翘曲器小格）。
         /// </summary>
         public static bool HasWarperCourierInTransitToStation(int planetId, int stationId)
         {
             int targetEndId = STATION_ENDID_OFFSET + stationId;
+            int targetWarperEndId = STATION_WARPER_STORAGE_ENDID_OFFSET + stationId;
             foreach (var logistics in GetAllForPlanet(planetId))
             {
                 if (logistics.couriers == null) continue;
@@ -149,7 +152,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 {
                     ref readonly var c = ref logistics.couriers[i];
                     if (c.maxt <= 0f || c.direction <= 0f) continue;
-                    if (c.itemId == ITEMID_WARPER && c.endId == targetEndId) return true;
+                    if (c.itemId == ITEMID_WARPER && (c.endId == targetEndId || c.endId == targetWarperEndId)) return true;
                 }
             }
             return false;

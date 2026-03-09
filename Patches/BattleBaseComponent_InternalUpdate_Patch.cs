@@ -12,8 +12,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     [HarmonyPatch(typeof(BattleBaseComponent), "InternalUpdate")]
     public static class BattleBaseComponent_InternalUpdate_Patch
     {
-        /// <summary> 物流塔目标时 endId = STATION_ENDID_OFFSET + stationId，用于区分配送器（正数）和机甲（负数） </summary>
+        /// <summary> 物流塔普通槽位目标时 endId = STATION_ENDID_OFFSET + stationId </summary>
         private const int STATION_ENDID_OFFSET = 20000;
+        /// <summary> 物流塔翘曲器小格目标时 endId = STATION_WARPER_STORAGE_ENDID_OFFSET + stationId，与普通槽位区分以避免误改 localOrder </summary>
+        private const int STATION_WARPER_STORAGE_ENDID_OFFSET = 30000;
 
         [HarmonyPostfix]
         static void Postfix(BattleBaseComponent __instance, PlanetFactory factory)
@@ -103,8 +105,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return false;
                 }
 
-                // 机甲：endId = -(slotIndex+1)；物流塔：endId = STATION_ENDID_OFFSET + stationId；配送器：endId = dispenserId
-                int endId = demand.IsMechaSlot ? -(demand.slotIndex + 1) : (demand.IsStationTower ? STATION_ENDID_OFFSET + demand.stationId : demand.dispenserId);
+                // 机甲：endId = -(slotIndex+1)；物流塔普通槽位：20000+stationId；翘曲器小格：30000+stationId；配送器：dispenserId
+                int endId = demand.IsMechaSlot ? -(demand.slotIndex + 1)
+                    : (demand.IsStationTower ? ((demand.IsWarperStorageDemand ? STATION_WARPER_STORAGE_ENDID_OFFSET : STATION_ENDID_OFFSET) + demand.stationId)
+                    : demand.dispenserId);
                 float maxt = distance;
                 Vector3 beginPos = basePosition;
                 Vector3 endPos = targetPosition;
@@ -233,12 +237,14 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         }
                         else if (courier.endId >= STATION_ENDID_OFFSET)
                         {
-                            int stationId = courier.endId - STATION_ENDID_OFFSET;
+                            bool isWarperStorage = courier.endId >= STATION_WARPER_STORAGE_ENDID_OFFSET;
+                            int stationId = isWarperStorage ? courier.endId - STATION_WARPER_STORAGE_ENDID_OFFSET : courier.endId - STATION_ENDID_OFFSET;
                             int originalCount = courier.itemCount;
                             int accepted = DeliverToStation(factory, stationId, courier.itemId, courier.itemCount, courier.inc);
                             delivered = (accepted >= courier.itemCount);
-                            // 物流塔在途：到达后扣减对应槽位 localOrder（与派遣时增加对应，无论是否成功放入）
-                            BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, originalCount);
+                            // 仅普通槽位需扣减 localOrder（翘曲器小格在派遣时未增加 localOrder）
+                            if (!isWarperStorage)
+                                BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, originalCount);
                             if (accepted > 0)
                             {
                                 if (Plugin.DebugLog())
@@ -284,7 +290,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                             if (Plugin.DebugLog())
                             {
                                 string itemName = GetItemName(courier.itemId);
-                                string targetDesc = courier.endId < 0 ? $"机甲槽位[{-courier.endId - 1}]" : (courier.endId >= STATION_ENDID_OFFSET ? $"物流塔[{courier.endId - STATION_ENDID_OFFSET}]" : $"配送器[{courier.endId}]");
+                                string targetDesc = courier.endId < 0 ? $"机甲槽位[{-courier.endId - 1}]"
+                                    : (courier.endId >= STATION_WARPER_STORAGE_ENDID_OFFSET ? $"物流塔[{courier.endId - STATION_WARPER_STORAGE_ENDID_OFFSET}]翘曲器小格"
+                                    : (courier.endId >= STATION_ENDID_OFFSET ? $"物流塔[{courier.endId - STATION_ENDID_OFFSET}]"
+                                    : $"配送器[{courier.endId}]"));
                                 Plugin.Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠️ 送货失败: {targetDesc} 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}，将返还到基站");
                             }
                         }
@@ -296,8 +305,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     {
                         courier.t = 0f;
 
-                        // 若目标为物流塔且携带物品返还，先扣减该塔对应槽位 localOrder（与派遣时增加对应）
-                        if (courier.endId >= STATION_ENDID_OFFSET && courier.itemId > 0 && courier.itemCount > 0)
+                        // 仅物流塔普通槽位（非翘曲器小格）且携带物品返还时，扣减对应 localOrder
+                        if (courier.endId >= STATION_ENDID_OFFSET && courier.endId < STATION_WARPER_STORAGE_ENDID_OFFSET && courier.itemId > 0 && courier.itemCount > 0)
                         {
                             int stationId = courier.endId - STATION_ENDID_OFFSET;
                             BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, courier.itemCount);

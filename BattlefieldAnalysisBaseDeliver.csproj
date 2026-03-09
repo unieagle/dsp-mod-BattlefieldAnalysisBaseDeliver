@@ -10,7 +10,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>BattlefieldAnalysisBaseDeliver</AssemblyName>
     <RootNamespace>BattlefieldAnalysisBaseDeliver</RootNamespace>
-    <Version>3.1.7</Version>
+    <Version>3.1.8</Version>
     <Authors>YourName</Authors>
     <Description>允许配送无人机从战场分析基站直接取物品</Description>
   </PropertyGroup>
