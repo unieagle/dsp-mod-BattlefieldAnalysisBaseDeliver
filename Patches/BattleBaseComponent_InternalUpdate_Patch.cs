@@ -16,6 +16,10 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         private const int STATION_ENDID_OFFSET = 20000;
         /// <summary> 物流塔翘曲器小格目标时 endId = STATION_WARPER_STORAGE_ENDID_OFFSET + stationId，与普通槽位区分以避免误改 localOrder </summary>
         private const int STATION_WARPER_STORAGE_ENDID_OFFSET = 30000;
+        /// <summary> 拉货任务：去供应配送器取货，endId = SUPPLY_FETCH_ENDID_OFFSET + dispenserId </summary>
+        private const int SUPPLY_FETCH_ENDID_OFFSET = 40000;
+
+        private const int COURIER_CAPACITY = 100;
 
         [HarmonyPostfix]
         static void Postfix(BattleBaseComponent __instance, PlanetFactory factory)
@@ -68,9 +72,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         {
             try
             {
+                if (demand.IsSupplyFetch)
+                    return DispatchSupplyFetchCourier(logistics, battleBase, factory, demand, basePosition);
+
                 int itemId = demand.itemId;
-                int maxAmount = 100; // 无人机容量（可以从配置读取）
-                // 机甲槽位或物流塔翘曲器需求：按 needCount 上限派遣，避免多送
+                int maxAmount = COURIER_CAPACITY;
                 if (demand.needCount > 0 && demand.needCount < maxAmount)
                     maxAmount = demand.needCount;
 
@@ -105,7 +111,6 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return false;
                 }
 
-                // 机甲：endId = -(slotIndex+1)；物流塔普通槽位：20000+stationId；翘曲器小格：30000+stationId；配送器：dispenserId
                 int endId = demand.IsMechaSlot ? -(demand.slotIndex + 1)
                     : (demand.IsStationTower ? ((demand.IsWarperStorageDemand ? STATION_WARPER_STORAGE_ENDID_OFFSET : STATION_ENDID_OFFSET) + demand.stationId)
                     : demand.dispenserId);
@@ -136,21 +141,18 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 logistics.idleCount--;
                 logistics.workingCount++;
 
-                // 机甲配送槽位：与原生一致，更新在途数量，使 UI 显示「即将收到」
                 if (demand.IsMechaSlot)
                 {
                     var pkg = GameMain.mainPlayer?.deliveryPackage;
                     if (pkg?.grids != null && demand.slotIndex >= 0 && demand.slotIndex < pkg.grids.Length)
                         pkg.grids[demand.slotIndex].ordered += actualAmount;
                 }
-                // 配送器目标：与原生一致，更新目标配送器 storageOrdered，使原生 UI 在途显示生效
                 else if (!demand.IsStationTower && demand.dispenserId > 0)
                 {
                     var targetDispenser = BattleBaseLogisticsManager.GetDispenser(factory, demand.dispenserId);
                     if (targetDispenser != null)
                         targetDispenser.storageOrdered += actualAmount;
                 }
-                // 物流塔普通槽位：与原生一致，更新目标槽位 localOrder，使物流塔 UI 在途显示生效
                 else if (demand.IsStationTower && !demand.IsWarperStorageDemand)
                 {
                     var station = factory.transport.GetStationComponent(demand.stationId);
@@ -175,6 +177,55 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DispatchCourier 异常: {ex.Message}");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// 派遣拉货无人机：空手去供应配送器取货，gene 存 reservedAmount 供到达时回退用。
+        /// </summary>
+        private static bool DispatchSupplyFetchCourier(BaseLogisticSystem logistics, BattleBaseComponent battleBase, PlanetFactory factory, DispenserDemand demand, Vector3 basePosition)
+        {
+            int reservedAmount = Math.Min(demand.needCount, COURIER_CAPACITY);
+            if (reservedAmount <= 0) return false;
+
+            var supplyDispenser = BattleBaseLogisticsManager.GetDispenser(factory, demand.dispenserId);
+            if (supplyDispenser == null) return false;
+            int stock = BattleBaseLogisticsManager.GetDispenserStockPublic(supplyDispenser, demand.itemId);
+            if (stock <= 0) return false;
+            reservedAmount = Math.Min(reservedAmount, stock);
+
+            int courierIndex = -1;
+            for (int i = 0; i < logistics.couriers.Length; i++)
+            {
+                if (logistics.couriers[i].maxt <= 0f) { courierIndex = i; break; }
+            }
+            if (courierIndex < 0) return false;
+
+            supplyDispenser.storageOrdered -= reservedAmount;
+            BattleBaseLogisticsManager.AddBaseFetchInFlight(factory.planetId, battleBase.id, demand.itemId, reservedAmount);
+
+            float distance = Vector3.Distance(basePosition, demand.position);
+            logistics.couriers[courierIndex] = new CourierData
+            {
+                begin = basePosition,
+                end = demand.position,
+                endId = SUPPLY_FETCH_ENDID_OFFSET + demand.dispenserId,
+                direction = 1f,
+                maxt = distance,
+                t = 0f,
+                itemId = demand.itemId,
+                itemCount = 0,
+                inc = 0,
+                gene = reservedAmount
+            };
+            logistics.idleCount--;
+            logistics.workingCount++;
+
+            if (Plugin.DebugLog())
+            {
+                string itemName = GetItemName(demand.itemId);
+                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 拉货派遣: 基站[{battleBase.id}] → 供应配送器[{demand.dispenserId}] 物品={itemName}(ID:{demand.itemId}) 预留={reservedAmount}");
+            }
+            return true;
         }
 
         /// <summary>
@@ -218,6 +269,40 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     if (courier.direction > 0f && courier.t >= courier.maxt)
                     {
                         courier.t = courier.maxt;
+
+                        if (courier.endId >= SUPPLY_FETCH_ENDID_OFFSET)
+                        {
+                            int dispenserId = courier.endId - SUPPLY_FETCH_ENDID_OFFSET;
+                            int reservedAmount = courier.gene;
+                            TakeItemFromDispenser(factory, dispenserId, courier.itemId, Math.Min(reservedAmount, COURIER_CAPACITY), out int actualCount, out int incOut);
+                            var supplyDispenser = BattleBaseLogisticsManager.GetDispenser(factory, dispenserId);
+                            if (actualCount > 0)
+                            {
+                                if (actualCount < reservedAmount && supplyDispenser != null)
+                                    supplyDispenser.storageOrdered += (reservedAmount - actualCount);
+                                courier.itemCount = actualCount;
+                                courier.inc = incOut;
+                                courier.direction = -1f;
+                            }
+                            else
+                            {
+                                if (supplyDispenser != null)
+                                    supplyDispenser.storageOrdered += reservedAmount;
+                                BattleBaseLogisticsManager.AddBaseFetchInFlight(factory.planetId, battleBase.id, courier.itemId, -reservedAmount);
+                                courier.maxt = 0f;
+                                courier.begin = Vector3.zero;
+                                courier.end = Vector3.zero;
+                                courier.endId = 0;
+                                courier.direction = 0f;
+                                courier.itemId = 0;
+                                courier.itemCount = 0;
+                                courier.inc = 0;
+                                courier.gene = 0;
+                                logistics.workingCount--;
+                                logistics.idleCount++;
+                            }
+                            continue;
+                        }
 
                         bool delivered;
                         if (courier.endId < 0)
@@ -304,6 +389,37 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     else if (courier.direction < 0f && courier.t <= 0f)
                     {
                         courier.t = 0f;
+
+                        if (courier.endId >= SUPPLY_FETCH_ENDID_OFFSET)
+                        {
+                            if (courier.itemId > 0 && courier.itemCount > 0)
+                            {
+                                DeliverToBaseInputPartition(battleBase, factory, courier.itemId, courier.itemCount, courier.inc);
+                                BattleBaseLogisticsManager.AddBaseFetchInFlight(factory.planetId, battleBase.id, courier.itemId, -courier.itemCount);
+                                var supplyDispenser = BattleBaseLogisticsManager.GetDispenser(factory, courier.endId - SUPPLY_FETCH_ENDID_OFFSET);
+                                if (supplyDispenser != null)
+                                    supplyDispenser.storageOrdered += courier.itemCount;
+                                if (Plugin.DebugLog())
+                                {
+                                    string itemName = GetItemName(courier.itemId);
+                                    Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📥 拉货送达: 基站[{battleBase.id}] 输入区 物品={itemName}(ID:{courier.itemId})x{courier.itemCount}");
+                                }
+                            }
+                            courier.maxt = 0f;
+                            courier.begin = Vector3.zero;
+                            courier.end = Vector3.zero;
+                            courier.endId = 0;
+                            courier.direction = 0f;
+                            courier.itemId = 0;
+                            courier.itemCount = 0;
+                            courier.inc = 0;
+                            courier.gene = 0;
+                            logistics.workingCount--;
+                            logistics.idleCount++;
+                            if (Plugin.DebugLog())
+                                Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🏠 无人机返回: 基站[{battleBase.id}] 空闲={logistics.idleCount}");
+                            continue;
+                        }
 
                         // 仅物流塔普通槽位（非翘曲器小格）且携带物品返还时，扣减对应 localOrder
                         if (courier.endId >= STATION_ENDID_OFFSET && courier.endId < STATION_WARPER_STORAGE_ENDID_OFFSET && courier.itemId > 0 && courier.itemCount > 0)
@@ -690,6 +806,62 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToDispenser 异常: {ex.Message}\n{ex.StackTrace}");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// 从供应配送器连接箱堆取货，沿 nextStorage 链对每个箱子调用 TakeItem。
+        /// </summary>
+        private static void TakeItemFromDispenser(PlanetFactory factory, int dispenserId, int itemId, int maxCount, out int actualCount, out int inc)
+        {
+            actualCount = 0;
+            inc = 0;
+            try
+            {
+                var dispenser = BattleBaseLogisticsManager.GetDispenser(factory, dispenserId);
+                if (dispenser?.storage?.bottomStorage == null) return;
+
+                var storageType = dispenser.storage.bottomStorage.GetType();
+                var takeItemMethod = storageType.GetMethod("TakeItem", BindingFlags.Public | BindingFlags.Instance);
+                var nextStorageField = storageType.GetField("nextStorage", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (takeItemMethod == null) return;
+
+                object? current = dispenser.storage.bottomStorage;
+                int remaining = maxCount;
+                int lastInc = 0;
+                while (current != null && remaining > 0)
+                {
+                    object[] args = new object[] { itemId, remaining, 0 };
+                    object? result = takeItemMethod.Invoke(current, args);
+                    if (result is int taken && taken > 0)
+                    {
+                        actualCount += taken;
+                        remaining -= taken;
+                        lastInc = (int)args[2];
+                    }
+                    current = nextStorageField?.GetValue(current) as object;
+                }
+                inc = lastInc;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] TakeItemFromDispenser 异常: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 放入基站输入区（与爪子一致，走 InsertIntoStorage，游戏内部对基站用 AddItemFilteredBanOnly）。
+        /// </summary>
+        private static void DeliverToBaseInputPartition(BattleBaseComponent battleBase, PlanetFactory factory, int itemId, int count, int inc)
+        {
+            try
+            {
+                if (battleBase == null || factory == null || itemId <= 0 || count <= 0) return;
+                factory.InsertIntoStorage(battleBase.entityId, itemId, count, inc, out int _, true);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToBaseInputPartition 异常: {ex.Message}");
             }
         }
 

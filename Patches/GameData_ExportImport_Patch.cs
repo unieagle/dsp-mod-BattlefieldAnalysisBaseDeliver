@@ -44,32 +44,54 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
 
                             totalCouriers++;
 
-                            // 若目标为机甲配送槽位，扣减在途数量（与派遣时增加对应），否则存档后 UI 会多算在途
-                            if (courier.endId < 0)
+                            const int SUPPLY_FETCH_ENDID_OFFSET = 40000;
+                            bool isSupplyFetch = courier.endId >= SUPPLY_FETCH_ENDID_OFFSET;
+
+                            if (isSupplyFetch)
                             {
-                                int slotIndex = -(courier.endId + 1);
-                                var pkg = GameMain.mainPlayer?.deliveryPackage;
-                                if (pkg?.grids != null && slotIndex >= 0 && slotIndex < pkg.grids.Length)
-                                    pkg.grids[slotIndex].ordered -= courier.itemCount;
+                                int dispenserId = courier.endId - SUPPLY_FETCH_ENDID_OFFSET;
+                                int reservedAmount = courier.gene;
+                                if (courier.itemId > 0 && courier.itemCount > 0)
+                                {
+                                    DeliverToBaseInputPartitionOnSave(factory, logistics.battleBaseId, courier.itemId, courier.itemCount, courier.inc);
+                                    BattleBaseLogisticsManager.AddBaseFetchInFlight(factory.planetId, logistics.battleBaseId, courier.itemId, -courier.itemCount);
+                                }
+                                else
+                                {
+                                    var supplyDispenser = BattleBaseLogisticsManager.GetDispenser(factory, dispenserId);
+                                    if (supplyDispenser != null)
+                                        supplyDispenser.storageOrdered += reservedAmount;
+                                    BattleBaseLogisticsManager.AddBaseFetchInFlight(factory.planetId, logistics.battleBaseId, courier.itemId, -reservedAmount);
+                                }
                             }
-                            // 若目标为配送器，扣减该配送器 storageOrdered（与派遣时增加对应）
-                            else if (courier.endId > 0 && courier.endId < 20000)
+                            else
                             {
-                                var targetDispenser = BattleBaseLogisticsManager.GetDispenser(factory, courier.endId);
-                                if (targetDispenser != null)
-                                    targetDispenser.storageOrdered -= courier.itemCount;
-                            }
-                            // 若目标为物流塔普通槽位（20000~29999），扣减该塔对应槽位 localOrder
-                            // 翘曲器小格（30000+）在派遣时未增加 localOrder，无需扣减
-                            else if (courier.endId >= 20000 && courier.endId < 30000)
-                            {
-                                int stationId = courier.endId - 20000;
-                                BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, courier.itemCount);
+                                // 若目标为机甲配送槽位，扣减在途数量（与派遣时增加对应），否则存档后 UI 会多算在途
+                                if (courier.endId < 0)
+                                {
+                                    int slotIndex = -(courier.endId + 1);
+                                    var pkg = GameMain.mainPlayer?.deliveryPackage;
+                                    if (pkg?.grids != null && slotIndex >= 0 && slotIndex < pkg.grids.Length)
+                                        pkg.grids[slotIndex].ordered -= courier.itemCount;
+                                }
+                                // 若目标为配送器（非拉货），扣减该配送器 storageOrdered（与派遣时增加对应）
+                                else if (courier.endId > 0 && courier.endId < 20000)
+                                {
+                                    var targetDispenser = BattleBaseLogisticsManager.GetDispenser(factory, courier.endId);
+                                    if (targetDispenser != null)
+                                        targetDispenser.storageOrdered -= courier.itemCount;
+                                }
+                                // 若目标为物流塔普通槽位（20000~29999），扣减该塔对应槽位 localOrder
+                                else if (courier.endId >= 20000 && courier.endId < 30000)
+                                {
+                                    int stationId = courier.endId - 20000;
+                                    BattleBaseLogisticsManager.DecrementStationSlotLocalOrder(factory, stationId, courier.itemId, courier.itemCount);
+                                }
                             }
 
-                            // 如果无人机携带物品，返还到基站（必须成功，否则会造成物品丢失）
+                            // 如果无人机携带物品，返还到基站（拉货已在上面放入输入区，此处仅处理送货返还）
                             bool itemReturned = false;
-                            if (courier.itemId > 0 && courier.itemCount > 0)
+                            if (!isSupplyFetch && courier.itemId > 0 && courier.itemCount > 0)
                             {
                                 if (ReturnItemToBase(factory, logistics.battleBaseId, courier.itemId, courier.itemCount, courier.inc))
                                 {
@@ -115,6 +137,42 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] GameData.Export Prefix 异常: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// 存档时把拉货在途物品放入基站输入区（与爪子一致，InsertIntoStorage → AddItemFilteredBanOnly）
+        /// </summary>
+        private static void DeliverToBaseInputPartitionOnSave(PlanetFactory factory, int battleBaseId, int itemId, int count, int inc)
+        {
+            try
+            {
+                object? battleBase = GetBattleBase(factory, battleBaseId);
+                if (battleBase == null) return;
+                var entityIdField = battleBase.GetType().GetField("entityId", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (entityIdField == null) return;
+                int entityId = (int)entityIdField.GetValue(battleBase)!;
+                if (entityId <= 0) return;
+                factory.InsertIntoStorage(entityId, itemId, count, inc, out int _, true);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] DeliverToBaseInputPartitionOnSave 异常: {ex.Message}");
+            }
+        }
+
+        private static object? GetBattleBase(PlanetFactory factory, int battleBaseId)
+        {
+            var defenseSystem = factory?.defenseSystem;
+            if (defenseSystem == null) return null;
+            var battleBasesField = defenseSystem.GetType().GetField("battleBases", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (battleBasesField == null) return null;
+            object? battleBasesPool = battleBasesField.GetValue(defenseSystem);
+            if (battleBasesPool == null) return null;
+            var bufferField = battleBasesPool.GetType().GetField("buffer", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (bufferField == null) return null;
+            Array? battleBases = bufferField.GetValue(battleBasesPool) as Array;
+            if (battleBases == null || battleBaseId <= 0 || battleBaseId >= battleBases.Length) return null;
+            return battleBases.GetValue(battleBaseId);
         }
 
         /// <summary>

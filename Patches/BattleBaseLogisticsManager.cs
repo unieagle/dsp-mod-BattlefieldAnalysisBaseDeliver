@@ -61,6 +61,9 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         public bool IsWarperStorageDemand;
         /// <summary> 物流塔 station.storage 的槽位索引，仅当 IsStationTower 且非翘曲器小格时有效，用于维护 localOrder </summary>
         public int StationStorageIndex;
+
+        /// <summary> true 表示从供应配送器拉货回基站输入区，无人机去该配送器取货后送回基站 </summary>
+        public bool IsSupplyFetch;
     }
 
     /// <summary>
@@ -87,7 +90,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
     {
         // planetId -> battleBaseId -> BaseLogisticSystem
         private static Dictionary<int, Dictionary<int, BaseLogisticSystem>> _systems = new Dictionary<int, Dictionary<int, BaseLogisticSystem>>();
-        
+
+        /// <summary> 基站拉货在途数量：(planetId, battleBaseId, itemId) -> 在途数量，派遣时+、回程到达或取货失败时- </summary>
+        private static Dictionary<(int planetId, int battleBaseId, int itemId), int> _baseFetchInFlight = new Dictionary<(int, int, int), int>();
+        private static object _inFlightLock = new object();
+
         private static object _lock = new object();
 
         /// <summary>
@@ -217,6 +224,35 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         }
 
         /// <summary>
+        /// 获取基站某物品当前拉货在途数量
+        /// </summary>
+        public static int GetBaseFetchInFlight(int planetId, int battleBaseId, int itemId)
+        {
+            lock (_inFlightLock)
+            {
+                return _baseFetchInFlight.TryGetValue((planetId, battleBaseId, itemId), out int v) ? v : 0;
+            }
+        }
+
+        /// <summary>
+        /// 增加或扣减基站某物品的拉货在途数量（delta 可正可负）
+        /// </summary>
+        public static void AddBaseFetchInFlight(int planetId, int battleBaseId, int itemId, int delta)
+        {
+            if (delta == 0) return;
+            lock (_inFlightLock)
+            {
+                var key = (planetId, battleBaseId, itemId);
+                int cur = _baseFetchInFlight.TryGetValue(key, out int v) ? v : 0;
+                cur += delta;
+                if (cur <= 0)
+                    _baseFetchInFlight.Remove(key);
+                else
+                    _baseFetchInFlight[key] = cur;
+            }
+        }
+
+        /// <summary>
         /// 清理星球数据
         /// </summary>
         public static void Clear(int planetId)
@@ -224,7 +260,12 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             lock (_lock)
             {
                 _systems.Remove(planetId);
-                
+                lock (_inFlightLock)
+                {
+                    var toRemove = _baseFetchInFlight.Where(kv => kv.Key.Item1 == planetId).Select(kv => kv.Key).ToList();
+                    foreach (var k in toRemove)
+                        _baseFetchInFlight.Remove(k);
+                }
                 if (Plugin.DebugLog())
                     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 清理基站物流系统：行星[{planetId}]");
             }
@@ -238,7 +279,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             lock (_lock)
             {
                 _systems.Clear();
-                
+                lock (_inFlightLock)
+                    _baseFetchInFlight.Clear();
                 if (Plugin.DebugLog())
                     Plugin.Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 清理所有基站物流系统");
             }
@@ -261,6 +303,151 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 扫描基站输入区需求（输入分区：index >= size - bans）。按 itemId 汇总缺口，并扣减在途。
+        /// </summary>
+        public static List<(int itemId, int needCount)> ScanBaseInputDemands(object battleBase, int planetId, int battleBaseId)
+        {
+            var result = new List<(int, int)>();
+            try
+            {
+                var storageField = battleBase?.GetType().GetField("storage", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                object? storage = storageField?.GetValue(battleBase!);
+                if (storage == null) return result;
+
+                var sizeField = storage.GetType().GetField("size", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var bansField = storage.GetType().GetField("bans", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var gridsField = storage.GetType().GetField("grids", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (sizeField == null || bansField == null || gridsField == null) return result;
+
+                int size = sizeField.GetValue(storage) is int s ? s : 0;
+                int bans = bansField.GetValue(storage) is int b ? b : 0;
+                int inputStart = size - bans;
+                if (inputStart >= size || bans <= 0) return result;
+
+                object? gridsObj = gridsField.GetValue(storage);
+                if (gridsObj is not Array grids) return result;
+
+                var gapByItem = new Dictionary<int, int>();
+                for (int i = inputStart; i < size; i++)
+                {
+                    object? grid = grids.GetValue(i);
+                    if (grid == null) continue;
+                    var filterField = grid.GetType().GetField("filter");
+                    var itemIdField = grid.GetType().GetField("itemId");
+                    var countField = grid.GetType().GetField("count");
+                    var stackSizeField = grid.GetType().GetField("stackSize");
+                    if (filterField == null || countField == null || stackSizeField == null) continue;
+
+                    int filter = filterField.GetValue(grid) is int f ? f : 0;
+                    int itemId = itemIdField != null && itemIdField.GetValue(grid) is int id ? id : filter;
+                    if (itemId <= 0) itemId = filter;
+                    if (itemId <= 0) continue;
+
+                    int count = countField.GetValue(grid) is int c ? c : 0;
+                    int stackSize = stackSizeField.GetValue(grid) is int ss ? ss : 1000;
+                    if (count >= stackSize) continue;
+
+                    int need = stackSize - count;
+                    if (!gapByItem.ContainsKey(itemId)) gapByItem[itemId] = 0;
+                    gapByItem[itemId] += need;
+                }
+
+                foreach (var kv in gapByItem)
+                {
+                    int itemId = kv.Key;
+                    int totalNeed = kv.Value;
+                    int inFlight = GetBaseFetchInFlight(planetId, battleBaseId, itemId);
+                    int needCount = Math.Max(0, totalNeed - inFlight);
+                    if (needCount > 0)
+                        result.Add((itemId, needCount));
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] ScanBaseInputDemands 异常: {ex.Message}");
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 扫描供应配送器（storageMode=Supply、有筛选、有库存），仅返回 neededItemIds 中的物品。
+        /// </summary>
+        public static List<DispenserDemand> ScanSupplyDispensers(PlanetFactory factory, Vector3 basePosition, HashSet<int> neededItemIds)
+        {
+            var list = new List<DispenserDemand>();
+            if (neededItemIds == null || neededItemIds.Count == 0) return list;
+            try
+            {
+                var transport = factory?.transport;
+                if (transport == null) return list;
+
+                var dispenserPoolField = transport.GetType().GetField("dispenserPool",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var dispenserCursorField = transport.GetType().GetField("dispenserCursor",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (dispenserPoolField == null || dispenserCursorField == null) return list;
+
+                Array? dispenserPool = dispenserPoolField.GetValue(transport) as Array;
+                object? cursorObj = dispenserCursorField.GetValue(transport);
+                if (dispenserPool == null || cursorObj == null) return list;
+
+                int dispenserCursor = Convert.ToInt32(cursorObj);
+                var entityPool = factory!.entityPool;
+                if (entityPool == null) return list;
+
+                for (int i = 1; i < dispenserCursor && i < dispenserPool.Length; i++)
+                {
+                    object? dispenserObj = dispenserPool.GetValue(i);
+                    if (dispenserObj == null) continue;
+                    DispenserComponent? dispenser = dispenserObj as DispenserComponent;
+                    if (dispenser == null || dispenser.id != i) continue;
+
+                    if (dispenser.storageMode != (EStorageDeliveryMode)1) continue; // Supply = 1
+                    if (dispenser.filter <= 0) continue;
+                    if (!neededItemIds.Contains(dispenser.filter)) continue;
+
+                    int stock = GetDispenserStock(dispenser, dispenser.filter);
+                    if (stock <= 0) continue;
+
+                    // 已由本 mod 预留的数量 = -Min(0, storageOrdered)；可再派单取走的量 = 物理库存 - 已预留
+                    int reservedByUs = Math.Max(0, -dispenser.storageOrdered);
+                    int availableForFetch = Math.Max(0, stock - reservedByUs);
+                    if (availableForFetch <= 0) continue;
+
+                    Vector3 position = Vector3.zero;
+                    if (dispenser.entityId > 0 && dispenser.entityId < entityPool.Length)
+                    {
+                        var entity = entityPool[dispenser.entityId];
+                        if (entity.id > 0) position = entity.pos;
+                    }
+                    float distance = Vector3.Distance(basePosition, position);
+
+                    list.Add(new DispenserDemand
+                    {
+                        IsSupplyFetch = true,
+                        dispenserId = dispenser.id,
+                        entityId = dispenser.entityId,
+                        storageId = 0,
+                        itemId = dispenser.filter,
+                        currentStock = availableForFetch,
+                        maxStock = 0,
+                        needCount = 0,
+                        urgency = 0f,
+                        position = position,
+                        distance = distance
+                    });
+                }
+
+                list.Sort((a, b) => a.distance.CompareTo(b.distance));
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] ScanSupplyDispensers 异常: {ex.Message}");
+            }
+            return list;
         }
 
         /// <summary>
@@ -623,15 +810,51 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             var mechaDemands = ScanMechaDemands(factory, basePosition, currentInventory);
             var stationDemands = ScanStationDemands(factory, basePosition, currentInventory);
             var dispenserDemands = ScanDispenserDemands(factory, basePosition, currentInventory);
-            var demands = new List<DispenserDemand>(mechaDemands.Count + stationDemands.Count + dispenserDemands.Count);
+
+            int planetId = factory.planetId;
+            int battleBaseId = logistics.battleBaseId;
+            var baseInputDemands = ScanBaseInputDemands(battleBase, planetId, battleBaseId);
+            var neededItemIds = new HashSet<int>(baseInputDemands.Select(x => x.itemId));
+            var supplyList = ScanSupplyDispensers(factory, basePosition, neededItemIds);
+
+            var fetchDemands = new List<DispenserDemand>();
+            const int courierCapacity = 100;
+            foreach (var (itemId, needCount) in baseInputDemands)
+            {
+                if (needCount <= 0) continue;
+                foreach (var supply in supplyList)
+                {
+                    if (supply.itemId != itemId) continue;
+                    int takeCount = Math.Min(needCount, Math.Min(courierCapacity, supply.currentStock));
+                    if (takeCount <= 0) continue;
+                    fetchDemands.Add(new DispenserDemand
+                    {
+                        IsSupplyFetch = true,
+                        dispenserId = supply.dispenserId,
+                        entityId = supply.entityId,
+                        storageId = 0,
+                        itemId = itemId,
+                        currentStock = supply.currentStock,
+                        maxStock = 0,
+                        needCount = takeCount,
+                        urgency = 1f,
+                        position = supply.position,
+                        distance = supply.distance
+                    });
+                    break;
+                }
+            }
+
+            var demands = new List<DispenserDemand>(mechaDemands.Count + stationDemands.Count + dispenserDemands.Count + fetchDemands.Count);
             demands.AddRange(mechaDemands);
             demands.AddRange(stationDemands);
             demands.AddRange(dispenserDemands);
-            // 优先顺序：机甲 > 物流塔 > 配送器；同物流塔且均为翘曲器时，先小存储点(warperCount)再槽位(slot)
+            demands.AddRange(fetchDemands);
+            // 优先顺序：机甲 > 物流塔 > 需求配送器 > 拉货
             demands.Sort((a, b) =>
             {
-                int priorityA = a.IsMechaSlot ? 0 : (a.IsStationTower ? 1 : 2);
-                int priorityB = b.IsMechaSlot ? 0 : (b.IsStationTower ? 1 : 2);
+                int priorityA = a.IsMechaSlot ? 0 : (a.IsStationTower ? 1 : (a.IsSupplyFetch ? 3 : 2));
+                int priorityB = b.IsMechaSlot ? 0 : (b.IsStationTower ? 1 : (b.IsSupplyFetch ? 3 : 2));
                 int pri = priorityA.CompareTo(priorityB);
                 if (pri != 0) return pri;
                 if (a.IsStationTower && b.IsStationTower && a.stationId == b.stationId && a.itemId == ITEMID_WARPER && b.itemId == ITEMID_WARPER)
@@ -651,6 +874,14 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             }
 
             return new DispatchContext(demands, currentInventory, basePosition);
+        }
+
+        /// <summary>
+        /// 获取配送器当前库存（遍历整条堆叠链）。供 Patch 拉货派遣时使用。
+        /// </summary>
+        public static int GetDispenserStockPublic(DispenserComponent dispenser, int itemId)
+        {
+            return GetDispenserStock(dispenser, itemId);
         }
 
         /// <summary>
