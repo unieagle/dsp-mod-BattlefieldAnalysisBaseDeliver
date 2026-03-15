@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.0.2] - 2026-03-14
+
+### Added
+- 新增配置 `BattleBasePickupPartitionStackSize`：默认 `2000`，用于统一设置基站拾取分区（输出分区）槽位 `stackSize`；设为 `0` 时不修改原值。
+- 新增配置 `BattleBaseCourierCarryCapacity`：默认 `100`，用于控制基站无人机单次运载量（送货与拉货逻辑统一使用）。
+
+### Changed
+- `AutoPickTrash` 相关补丁改为在原版逻辑上增强：部分拾取后延长掉落寿命，且剩余寿命封顶为 60 秒，避免无限叠加。
+- 修改送货优先级：机甲 -> 配送器 -> 物流塔 -> 取货
+
 ## [4.0.0] - 2026-03-09
 
 ### Added
