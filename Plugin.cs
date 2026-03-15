@@ -117,6 +117,22 @@ namespace BattlefieldAnalysisBaseDeliver
                 Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠ 未找到 BattleBaseComponent.InternalUpdate 方法！");
             }
 
+            // Patch 2.1: BattleBaseComponent.AutoPickTrash - 原版逻辑基础上，部分拾取后给该堆额外寿命
+            var autoPickTrashMethod = AccessTools.Method(typeof(BattleBaseComponent), "AutoPickTrash");
+            if (autoPickTrashMethod != null)
+            {
+                harmony.Patch(
+                    original: autoPickTrashMethod,
+                    prefix: new HarmonyMethod(typeof(Patches.BattleBaseComponent_AutoPickTrashLifeExtend_Patch), "Prefix"),
+                    postfix: new HarmonyMethod(typeof(Patches.BattleBaseComponent_AutoPickTrashLifeExtend_Patch), "Postfix")
+                );
+                Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✓ BattleBaseComponent.AutoPickTrash 补丁已应用（部分拾取+30秒寿命）");
+            }
+            else
+            {
+                Log?.LogWarning($"[{PluginInfo.PLUGIN_NAME}] ⚠ 未找到 BattleBaseComponent.AutoPickTrash 方法！");
+            }
+
             // Patch 3: LogisticCourierRenderer.Update - 渲染基站派遣的无人机
             var rendererUpdateMethod = AccessTools.Method(typeof(LogisticCourierRenderer), "Update");
             if (rendererUpdateMethod != null)

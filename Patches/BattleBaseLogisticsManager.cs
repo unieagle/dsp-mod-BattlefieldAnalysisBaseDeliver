@@ -850,11 +850,11 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             demands.AddRange(stationDemands);
             demands.AddRange(dispenserDemands);
             demands.AddRange(fetchDemands);
-            // 优先顺序：机甲 > 物流塔 > 需求配送器 > 拉货
+            // 优先顺序：机甲 > 需求配送器 > 物流塔 > 拉货
             demands.Sort((a, b) =>
             {
-                int priorityA = a.IsMechaSlot ? 0 : (a.IsStationTower ? 1 : (a.IsSupplyFetch ? 3 : 2));
-                int priorityB = b.IsMechaSlot ? 0 : (b.IsStationTower ? 1 : (b.IsSupplyFetch ? 3 : 2));
+                int priorityA = a.IsMechaSlot ? 0 : (a.IsStationTower ? 2 : (a.IsSupplyFetch ? 3 : 1));
+                int priorityB = b.IsMechaSlot ? 0 : (b.IsStationTower ? 2 : (b.IsSupplyFetch ? 3 : 1));
                 int pri = priorityA.CompareTo(priorityB);
                 if (pri != 0) return pri;
                 if (a.IsStationTower && b.IsStationTower && a.stationId == b.stationId && a.itemId == ITEMID_WARPER && b.itemId == ITEMID_WARPER)
