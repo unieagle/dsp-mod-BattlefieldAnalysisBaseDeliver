@@ -12,6 +12,8 @@ namespace BattlefieldAnalysisBaseDeliver
         public static ConfigEntry<bool> EnableDebugLog = null!;
         public static ConfigEntry<int> BattleBaseCourierCount = null!;
         public static ConfigEntry<float> BattleBaseCourierSpeedMultiplier = null!;
+        public static ConfigEntry<int> BattleBaseCourierCarryCapacity = null!;
+        public static ConfigEntry<int> BattleBasePickupPartitionStackSize = null!;
 
         /// <summary>
         /// 调试日志开关：由配置文件控制
@@ -37,6 +39,28 @@ namespace BattlefieldAnalysisBaseDeliver
             float v = BattleBaseCourierSpeedMultiplier?.Value ?? 2f;
             if (v < 0.1f) return 0.1f;
             if (v > 10f) return 10f;
+            return v;
+        }
+
+        /// <summary>
+        /// 基站无人机单次运载量（已限制在 1～5000 范围内）
+        /// </summary>
+        public static int GetBattleBaseCourierCarryCapacity()
+        {
+            int v = BattleBaseCourierCarryCapacity?.Value ?? 100;
+            if (v < 1) return 1;
+            if (v > 5000) return 5000;
+            return v;
+        }
+
+        /// <summary>
+        /// 基站拾取分区槽位堆叠上限（0 表示不修改；否则限制在 1～10000）
+        /// </summary>
+        public static int GetBattleBasePickupPartitionStackSize()
+        {
+            int v = BattleBasePickupPartitionStackSize?.Value ?? 2000;
+            if (v <= 0) return 0;
+            if (v > 10000) return 10000;
             return v;
         }
 
@@ -66,6 +90,20 @@ namespace BattlefieldAnalysisBaseDeliver
                 new BepInEx.Configuration.ConfigDescription(
                     "基站无人机速度倍率（在游戏物流速度基础上的倍数，0.1～10，默认 2.0）。",
                     new BepInEx.Configuration.AcceptableValueRange<float>(0.1f, 10f)));
+
+            BattleBaseCourierCarryCapacity = Config.Bind(
+                "General",
+                "BattleBaseCourierCarryCapacity",
+                100,
+                new BepInEx.Configuration.ConfigDescription(
+                    "基站无人机单次运载量（1～5000，默认 100）。",
+                    new BepInEx.Configuration.AcceptableValueRange<int>(1, 5000)));
+
+            BattleBasePickupPartitionStackSize = Config.Bind(
+                "General",
+                "BattleBasePickupPartitionStackSize",
+                2000,
+                "基站拾取分区槽位堆叠上限（0=不修改，>0 时统一设置该值，默认 2000）。");
 
             var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
@@ -180,7 +218,8 @@ namespace BattlefieldAnalysisBaseDeliver
 
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ========================================");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ✅ 加载完成！基站直接派遣方案");
-            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 战场基站无人机数量: {GetBattleBaseCourierCount()}，速度倍率: {GetBattleBaseCourierSpeedMultiplier()}（可在配置中修改）");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📦 战场基站无人机数量: {GetBattleBaseCourierCount()}，速度倍率: {GetBattleBaseCourierSpeedMultiplier()}，单次运载量: {GetBattleBaseCourierCarryCapacity()}（可在配置中修改）");
+            Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 📥 拾取分区 stackSize 配置: {GetBattleBasePickupPartitionStackSize()}（0 表示不修改）");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 🚀 无需虚拟配送器，性能优化");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] 💾 存档安全，自动兼容旧方案");
             Log?.LogInfo($"[{PluginInfo.PLUGIN_NAME}] ========================================");

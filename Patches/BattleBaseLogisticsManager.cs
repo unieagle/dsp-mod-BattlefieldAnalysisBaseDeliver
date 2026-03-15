@@ -818,7 +818,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             var supplyList = ScanSupplyDispensers(factory, basePosition, neededItemIds);
 
             var fetchDemands = new List<DispenserDemand>();
-            const int courierCapacity = 100;
+            int courierCapacity = Plugin.GetBattleBaseCourierCarryCapacity();
             foreach (var (itemId, needCount) in baseInputDemands)
             {
                 if (needCount <= 0) continue;

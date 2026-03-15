@@ -19,8 +19,6 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// <summary> 拉货任务：去供应配送器取货，endId = SUPPLY_FETCH_ENDID_OFFSET + dispenserId </summary>
         private const int SUPPLY_FETCH_ENDID_OFFSET = 40000;
 
-        private const int COURIER_CAPACITY = 100;
-
         [HarmonyPostfix]
         static void Postfix(BattleBaseComponent __instance, PlanetFactory factory)
         {
@@ -76,7 +74,7 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                     return DispatchSupplyFetchCourier(logistics, battleBase, factory, demand, basePosition);
 
                 int itemId = demand.itemId;
-                int maxAmount = COURIER_CAPACITY;
+                int maxAmount = Plugin.GetBattleBaseCourierCarryCapacity();
                 if (demand.needCount > 0 && demand.needCount < maxAmount)
                     maxAmount = demand.needCount;
 
@@ -184,7 +182,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
         /// </summary>
         private static bool DispatchSupplyFetchCourier(BaseLogisticSystem logistics, BattleBaseComponent battleBase, PlanetFactory factory, DispenserDemand demand, Vector3 basePosition)
         {
-            int reservedAmount = Math.Min(demand.needCount, COURIER_CAPACITY);
+            int courierCapacity = Plugin.GetBattleBaseCourierCarryCapacity();
+            int reservedAmount = Math.Min(demand.needCount, courierCapacity);
             if (reservedAmount <= 0) return false;
 
             var supplyDispenser = BattleBaseLogisticsManager.GetDispenser(factory, demand.dispenserId);
@@ -274,7 +273,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                         {
                             int dispenserId = courier.endId - SUPPLY_FETCH_ENDID_OFFSET;
                             int reservedAmount = courier.gene;
-                            TakeItemFromDispenser(factory, dispenserId, courier.itemId, Math.Min(reservedAmount, COURIER_CAPACITY), out int actualCount, out int incOut);
+                            int courierCapacity = Plugin.GetBattleBaseCourierCarryCapacity();
+                            TakeItemFromDispenser(factory, dispenserId, courier.itemId, Math.Min(reservedAmount, courierCapacity), out int actualCount, out int incOut);
                             var supplyDispenser = BattleBaseLogisticsManager.GetDispenser(factory, dispenserId);
                             if (actualCount > 0)
                             {

@@ -38,6 +38,8 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
                 if (__instance == null || factory == null || trashSystem?.container == null)
                     return;
 
+                EnsurePickupPartitionStackSize(__instance);
+
                 ref EntityData ptr = ref factory.entityPool[__instance.entityId];
                 if (ptr.id != __instance.entityId)
                     return;
@@ -92,6 +94,44 @@ namespace BattlefieldAnalysisBaseDeliver.Patches
             catch (Exception ex)
             {
                 Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] AutoPickTrashLifeExtend Prefix 异常: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 将基站“拾取分区”（即 useBan=true 时可写入的前半区：0..size-bans-1）槽位堆叠上限提升到配置值。
+        /// </summary>
+        private static void EnsurePickupPartitionStackSize(BattleBaseComponent battleBase)
+        {
+            try
+            {
+                int configuredStackSize = Plugin.GetBattleBasePickupPartitionStackSize();
+                if (configuredStackSize <= 0)
+                    return; // 0 表示不修改
+
+                StorageComponent storage = battleBase.storage;
+                if (storage == null || storage.grids == null || storage.size <= 0)
+                    return;
+
+                int pickupEnd = storage.size - storage.bans;
+                if (pickupEnd <= 0) return;
+                if (pickupEnd > storage.grids.Length) pickupEnd = storage.grids.Length;
+
+                bool changed = false;
+                for (int i = 0; i < pickupEnd; i++)
+                {
+                    if (storage.grids[i].stackSize != configuredStackSize)
+                    {
+                        storage.grids[i].stackSize = configuredStackSize;
+                        changed = true;
+                    }
+                }
+
+                if (changed)
+                    storage.NotifyStorageChange();
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.LogError($"[{PluginInfo.PLUGIN_NAME}] EnsurePickupPartitionStackSize 异常: {ex.Message}");
             }
         }
 
